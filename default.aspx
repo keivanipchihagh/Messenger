@@ -52,28 +52,48 @@
     <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
 
     <!-- ======= Header ======= -->
-    <header id="header" style="box-shadow: 1px 0px 10px 1px #040b14">
+    <header id="header">
 
         <div class="d-flex flex-column">
 
             <div class="profile" style="margin-bottom: 30px">
-                <img src="assets/img/profile-img.jpg" alt="" class="img-fluid rounded-circle">
-                <h1 class="text-light">Alex Smith</h1>
+                <img src="assets/img/profile-img.jpg" alt="Profile Img" class="img-fluid rounded-circle">
+                <h1 class="text-light">Alex Smith<i class="fa fa-dot-circle-o" aria-hidden="true" style="color: lawngreen; font-size: medium; padding: 5px"></i></h1>
                 <div class="social-links mt-3 text-center">
-                    <a href="#" title="Settings"><i class="fa fa-cog" aria-hidden="true"></i></a>
-                    <a href="#" title="My Profile"><i class="fa fa-user" aria-hidden="true"></i></a>
-                    <a href="#" title="My Contacts"><i class="fa fa-address-book-o" aria-hidden="true"></i></a>                    
-                    <a href="#" title="Adjust Colors"><i class="fa fa-adjust" aria-hidden="true"></i></a>
-                    <a href="#" title="Refresh Page"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                    <a class="navMenu" href="#" title="Settings"><i class="fa fa-cog" aria-hidden="true"></i></a>
+                    <a class="navMenu" href="#" title="My Profile"><i class="fa fa-user" aria-hidden="true"></i></a>
+                    <a class="navMenu" href="#" title="My Contacts"><i class="fa fa-address-book-o" aria-hidden="true"></i></a>                    
+                    <a class="navMenu" href="#" title="Adjust Colors"><i class="fa fa-adjust" aria-hidden="true"></i></a>
+                    <a class="navMenu" href="#" title="Refresh Page"><i class="fa fa-refresh" aria-hidden="true"></i></a>
                 </div>
             </div>
 
-            <div class="message" style="width: 100%; border-left: 2px solid #149ddd; padding: 5px; margin-bottom: 20px">
-                <div class="messageHeader" style="color: ghostwhite">
-                    <img src="assets/img/favicon.png" style="width: 30px; height: 30px; float: left; margin: 5px" />
+            <div class="message">
+                <div class="messageHeader">
+                    <img class="messageImg" src="assets/img/favicon.png" />
                     <h6 style="padding: 7px">Keivan Ipchi Hagh</h6>
                 </div>
-                <div class="messageBody" style="color: ghostwhite; font-size: x-small">
+                <div class="messageBody">
+                    <p style="margin: 0px">Howdy! What's up? Just asking to see if you have ....</p>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="messageHeader">
+                    <img class="messageImg" src="assets/img/favicon.png" />
+                    <h6 style="padding: 7px">Keivan Ipchi Hagh</h6>
+                </div>
+                <div class="messageBody">
+                    <p style="margin: 0px">Howdy! What's up? Just asking to see if you have ....</p>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="messageHeader">
+                    <img class="messageImg" src="assets/img/favicon.png" />
+                    <h6 style="padding: 7px">Keivan Ipchi Hagh</h6>
+                </div>
+                <div class="messageBody">
                     <p style="margin: 0px">Howdy! What's up? Just asking to see if you have ....</p>
                 </div>
             </div>
@@ -103,12 +123,13 @@
     <main id="main">
 
         <!-- A grey horizontal navbar that becomes vertical on small screens -->
-        <nav class="navbar navbar-expand-sm sticky-top navbar-right" style="background-color: #040b14; box-shadow: 0px 1px 10px 1px #040b14; color: ghostwhite">           
+        <nav class="navbar navbar-expand-sm sticky-top navbar-right" >           
              <div>
-                <img src="assets/img/favicon.png" style="width: 30px; height: 30px; float: left; margin: 5px 10px 5px 10px" />
-                <h3 style="color: #149ddd; float: left">Messenger</h3>
+                <img class="navImg" src="assets/img/favicon.png" />
+                <h2 style="color: #149ddd; float: left">Messenger</h2>
+                 <p class="navSlogan">Web-Based Messaging platform</p>
             </div>
-        </nav>
+        </nav>        
 
     </main><!-- End #main -->
 
