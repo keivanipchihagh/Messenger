@@ -53,16 +53,14 @@
 
     <!-- ======= Header ======= -->
     <header id="header">
-
         <div class="d-flex flex-column">
-
             <div class="profile" style="margin-bottom: 30px">
                 <img src="assets/img/profile-img.jpg" alt="Profile Img" class="img-fluid rounded-circle">
                 <h1 class="text-light">Alex Smith<i class="fa fa-dot-circle-o" aria-hidden="true" style="color: lawngreen; font-size: medium; padding: 5px"></i></h1>
                 <div class="social-links mt-3 text-center">
                     <a class="navMenu" href="#" title="Settings"><i class="fa fa-cog" aria-hidden="true"></i></a>
                     <a class="navMenu" href="#" title="My Profile"><i class="fa fa-user" aria-hidden="true"></i></a>
-                    <a class="navMenu" href="#" title="My Contacts"><i class="fa fa-address-book-o" aria-hidden="true"></i></a>                    
+                    <a class="navMenu" href="#" title="My Contacts"><i class="fa fa-address-book-o" aria-hidden="true"></i></a>
                     <a class="navMenu" href="#" title="Adjust Colors"><i class="fa fa-adjust" aria-hidden="true"></i></a>
                     <a class="navMenu" href="#" title="Refresh Page"><i class="fa fa-refresh" aria-hidden="true"></i></a>
                 </div>
@@ -123,13 +121,13 @@
     <main id="main">
 
         <!-- A grey horizontal navbar that becomes vertical on small screens -->
-        <nav class="navbar navbar-expand-sm sticky-top navbar-right" >           
-             <div>
+        <nav class="navbar navbar-expand-sm sticky-top navbar-right">
+            <div>
                 <img class="navImg" src="assets/img/favicon.png" />
                 <h2 style="color: #149ddd; float: left">Messenger</h2>
-                 <p class="navSlogan">Web-Based Messaging platform</p>
+                <p class="navSlogan">Web-Based Messaging platform</p>
             </div>
-        </nav>        
+        </nav>
 
     </main><!-- End #main -->
 
@@ -143,7 +141,7 @@
     <script src="assets/vendor/aos/aos.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js"></script>    
 
 </body>
 </html>
