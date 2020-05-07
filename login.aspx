@@ -11,6 +11,12 @@
     <link href="assets/img/favicon.png" rel="icon">
     <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
@@ -19,28 +25,26 @@
     <!--===============================================================================================-->
 </head>
 <body>
-
-    <div class="limiter">
+    <div id="mainContainer" class="limiter">
         <div class="container-login100">
-            <div class="wrap-login100">
+            <div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px">
                 <form class="login100-form validate-form">
+                    <input name="identifier" id="identifier" type="hidden" value="login" />
                     <span class="login100-form-title p-b-26">
-                        <img class="navImg" src="assets/img/favicon.png" style="width: 70px; height: 70px" />
-                        <h3>Messenger</h3>
+                        <img class="loginImg" src="assets/img/favicon.png" />
+                        <h3 style="float: left">Messenger</h3>
+                        <p style="font-family: 'Raleway'">Web-Based Messaging platform</p>
                     </span>
-                    
 
                     <div class="wrap-input100 validate-input">
-                        <input class="input100" type="text" name="email">
-                        <span class="focus-input100" data-placeholder="Email"></span>
+                        <input class="input100" type="text" name="email" id="email" placeholder="Email Address">
                     </div>
 
                     <div class="wrap-input100 validate-input">
                         <span class="btn-show-pass">
-                            <i class="zmdi zmdi-eye"></i>
+                            <i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle('fa-eye-slash');"></i>
                         </span>
-                        <input class="input100" type="password" name="pass">
-                        <span class="focus-input100" data-placeholder="Password"></span>
+                        <input class="input100" type="password" name="pass" id="pass" placeholder="Password">
                     </div>
 
                     <div class="container-login100-form-btn">
@@ -54,14 +58,11 @@
 
                     <div class="text-center p-t-20">
                         <span class="txt1">Don’t have an account?</span>
-                        <a class="txt2" href="#">Sign up!</a>
+                        <a class="txt2" onclick="switchDefault()">Sign up!</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-
-    <div id="dropDownSelect1"></div>
 </body>
 </html>
