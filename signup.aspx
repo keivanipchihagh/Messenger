@@ -27,7 +27,7 @@
     <div id="mainContainer" class="limiter">
         <div class="container-login100">
             <div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px">
-                <form class="login100-form">
+                <form class="login100-form" id="form" name="form" action="home.aspx" method="post">
                     <input name="identifier" id="identifier" type="hidden" value="signup" />
 
                     <!-- Header -->
@@ -68,8 +68,8 @@
                     <!-- Footer -->
                     <div class="container-login100-form-btn">                        
                         <div class="wrap-login100-form-btn">                            
-                            <div class="login100-form-bgbtn" onclick="submit()"></div>                            
-                            <button class="login100-form-btn" onclick="submit()">Sign up</button>
+                            <div class="login100-form-bgbtn"></div>                            
+                            <button class="login100-form-btn" onclick="validateSubmit()">Sign up</button>
                         </div>
                     </div>
 

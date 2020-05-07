@@ -104,18 +104,26 @@ function switchDefault() {
         document.getElementById('mainContainer').innerHTML = '';
 }
 
-function submit() {
-    alert('asd');
-    var request = new XMLHttpRequest();    
-    if (document.getElementById('identifier') === 'signup')
-        request.open('GET', 'responder.aspx?Action=' + document.getElementById('identifier') + "&FullName=" + document.getElementById('fullname') + "&UserName=" + document.getElementById('username') + "&Email=" + document.getElementById('email') + "Password=" + document.getElementById('pass'), true);
+function validateSubmit() {
+
+    var request = new XMLHttpRequest();
+
+    if (document.getElementById('identifier').value === 'signup')
+        request.open('GET', 'responder.aspx?Action=' + document.getElementById('identifier').value + "&FullName=" + document.getElementById('fullname').value + "&UserName=" + document.getElementById('username').value + "&Email=" + document.getElementById('email').value + "&Password=" + document.getElementById('pass').value, true);
 
     request.send();
 
-    request.onreadystatechange = new function () {
-        if (request.readyState === 4 && request.status === 200 && request.responseText === 'Code 1') {
-            console.log('yey!');
-            switchDefault();    // Go to login page
-        }
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            if (request.responseText === 'Code 1') {
+                document.getElementById('form').submit();
+            } else
+                alert('Please choose a different username');
+        } else
+            success = false;
     };
+
+    if (success === false)
+        alert('Err contacting the server');
 }
