@@ -18,7 +18,7 @@ namespace Messenger
 
                 switch (Request.QueryString["Action"])
                 {
-                    case "signup":                        
+                    case "signup":
                         sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_UserName = @username", sqlConnection);    // Initialize command
                         sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
                         sqlConnection.Open();   // Open connection
@@ -39,6 +39,20 @@ namespace Messenger
                             sqlCommand.ExecuteNonQuery();   // Insert
                             Response.Write("Code 1");   // Code 1: 'Insertion was successfull'
                         }
+
+                        break;
+
+                    case "login":
+                        sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
+                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                        sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+                        sqlConnection.Open();   // Open connection
+
+                        dataReader = sqlCommand.ExecuteReader();
+                        if (dataReader.Read())
+                            Response.Write("Code 1");   // Code 1: 'User exists'
+                        else
+                            Response.Write("Code 0");   //  Code 0: 'User does not exist'
 
                         break;
                 }
