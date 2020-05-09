@@ -67,7 +67,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="activation.aspx" />
     <Content Include="default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="home.aspx" />
@@ -76,13 +75,6 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="activation.aspx.cs">
-      <DependentUpon>activation.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="activation.aspx.designer.cs">
-      <DependentUpon>activation.aspx</DependentUpon>
-    </Compile>
     <Compile Include="default.aspx.cs">
       <DependentUpon>default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
