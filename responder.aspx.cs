@@ -55,6 +55,9 @@ namespace Messenger
                             Response.Write("Code 0");   //  Code 0: 'User does not exist'
 
                         break;
+                    case "activate":
+                        Response.Write("asd");
+                        break;
                 }
             }
             catch (Exception ex) { Response.Write(ex.Message); }
