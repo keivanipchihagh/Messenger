@@ -36,7 +36,8 @@
                         <h3 style="float: left">Messenger</h3>
                         <p style="font-family: 'Raleway'">Web-Based Messaging platform</p>                        
                     </span>                    
-                    <span id="dialog" style="color: limegreen; text-decoration: underline"></span>
+
+                    <div id="alertBox"></div>
 
                     <div class="wrap-input100 validate-input">
                         <input class="input100" type="text" name="email" id="email" placeholder="Email Address" required="required">
@@ -57,11 +58,11 @@
                     </div>
 
                     <div class="text-center p-t-20">
-                        <span class="txt1">Don’t have an account?</span>
+                        <span class="txt1">Not a Member yet?</span>
                         <a class="txt2" onclick="switchLayout('signup')"> Sign up!</a>
                     </div>
                 </form>
-            </div>
+            </div>            
         </div>
     </div>
 </body>

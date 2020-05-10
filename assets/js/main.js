@@ -93,19 +93,19 @@
             scrollTop: 0
         }, 1500, 'easeInOutExpo');
         return false;
-    });          
+    });
 
 })(jQuery);
 
 function switchLayout(page) {
     if (page === 'signup') {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form" onsubmit="return false"><input name="identifier" id="identifier" type="hidden" value="signup" /><!-- Header --><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><!-- Full Name --><div class="wrap-input100"><input class="input100" type="text" name="fullname" id="fullname" required="required" placeholder="Full Name"></div><!-- User Name --><div class="wrap-input100"><input class="input100" type="text" name="username" id="username" required="required" placeholder="User Name"></div><!-- Email --><div class="wrap-input100"><input class="input100" type="text" name="email" id="email" required="required" placeholder="Email Address"></div><!-- Password --><div class="wrap-input100"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" required="required" placeholder="Password"></div><!-- Confirmation --><div class="wrap-input100"><input class="input100" type="password" name="confirm" id="confirm" required="required" placeholder="Confirm Password"></div><!-- Footer --><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn" onclick="signup()">Sign up</button></div></div><div class="text-center p-t-20"><span class="txt1">Already have an account?</span><a class="txt2" href="#" onclick="switchLayout(\'login\')"> Login!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form" onsubmit="return false"><input name="identifier" id="identifier" type="hidden" value="signup" /><!-- Header --><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100"><input class="input100" type="text" name="fullname" id="fullname" required="required" placeholder="Full Name"></div><!-- User Name --><div class="wrap-input100"><input class="input100" type="text" name="username" id="username" required="required" placeholder="User Name"></div><!-- Email --><div class="wrap-input100"><input class="input100" type="text" name="email" id="email" required="required" placeholder="Email Address"></div><!-- Password --><div class="wrap-input100"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" required="required" placeholder="Password"></div><!-- Confirmation --><div class="wrap-input100"><input class="input100" type="password" name="confirm" id="confirm" required="required" placeholder="Confirm Password"></div><!-- Footer --><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn" onclick="signup()">Sign up</button></div></div><div class="text-center p-t-20"><span class="txt1">Already have an account?</span><a class="txt2" href="#" onclick="switchLayout(\'login\')"> Login!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Signup';
     } else if (page === 'login') {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><span id="dialog" style="color: limegreen; text-decoration: underline"></span><div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" placeholder="Email Address" required="required"></div><div class="wrap-input100 validate-input"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" placeholder="Password" required="required"></div><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn">Login</button></div></div><div class="text-center p-t-20"><span class="txt1">Don\'t have an account?</span><a class="txt2" onclick="switchLayout(\'signup\')"> Sign up!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" placeholder="Email Address" required="required"></div><div class="wrap-input100 validate-input"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" placeholder="Password" required="required"></div><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn">Login</button></div></div><div class="text-center p-t-20"><span class="txt1">Not a Member yet?</span><a class="txt2" onclick="switchLayout(\'signup\')"> Sign up!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Login';
     } else {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><span id="dialog" style="color: limegreen; text-decoration: underline"></span><div style="text-align: center"><h4 style="margin: 10px; font-family: \'Raleway\'">Account Created Successfully!</h4><p style="font-family: \'Raleway\'; color: black; font-size: small">An Activation Code has been send to \'' + document.getElementById('email').value + '\'. Code expires in 24 Hours</p></div><div class="text-center p-t-10" style="border-top: 1px solid #666666; margin-top: 10px"><span class="txt1">No activation code?</span><a class="txt2" onclick=""> Resend!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div style="text-align: center"><h4 style="margin: 10px; font-family: \'Raleway\'">Account Created Successfully!</h4><p style="font-family: \'Raleway\'; color: black; font-size: small">An Activation Code has been send to \'' + document.getElementById('email').value + '\'. Code expires in 24 Hours</p></div><div class="text-center p-t-10" style="border-top: 1px solid #666666; margin-top: 10px"><span class="txt1">No activation code?</span><a class="txt2" onclick=""> Resend!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Activation';
     }
 }
@@ -123,13 +123,13 @@ function validate(signup) {
     if (document.getElementById('email').value === '') // Email         
         return false;
     else if (!emailPattern.test(document.getElementById('email').value)) {
-        alert('Email is invalid. Try again');
+        triggerAlert('error', 'Invalid Email Address');
         document.getElementById('email').value = '';
         return false;
     }
 
     if (signup === true && (document.getElementById('pass').value !== document.getElementById('confirm').value || document.getElementById('pass').value === '' || document.getElementById('confirm').value === '')) { // Password & Confirmation 
-        alert('Passwords do not match. Try again');
+        triggerAlert('error', 'Passwords Do Not Match');
         document.getElementById('pass').value = '';
         document.getElementById('confirm').value = '';
         return false;
@@ -152,14 +152,20 @@ function signup() {
             if (request.readyState === 4 && request.status === 200) {
                 if (request.responseText === 'Code 1') {
                     switchLayout('activate');    // Show Login Page
-                } else
-                    alert('Please choose a different username');
+                } else if (request.responseText === 'Code 0') {
+                    triggerAlert('error', 'Username Is Already Taken');
+                    document.getElementById('username').value = '';
+                    document.getElementById('pass').value = '';
+                    document.getElementById('confirm').value = '';
+                } else {
+                    triggerAlert('error', 'Mail Sent Failure; Disable Proxy / Check Connection');
+                }
             } else
                 success = false;
         };
 
         if (success === false)
-            alert('Err contacting the server');
+            triggerAlert('error', 'Connection Timed Out');
     }
 }
 
@@ -175,18 +181,43 @@ function login() {
         request.onreadystatechange = function () {            
             if (request.readyState === 4 && request.status === 200) {
                 if (request.responseText === 'Code 1') {
-                    document.getElementById('form').submit();                    
+                    triggerAlert('success', 'EP Signature Confirmed, Loging In...');
+                    document.getElementById('form').submit();
                 } else {
-                    alert('User does not exist');
-                    document.getElementById('pass').value = '';                    
+                    triggerAlert('error', 'Incorrect Email / Password');
+                    document.getElementById('pass').value = '';    
+                    document.getElementById('confirm').value = ''; 
                 }
             } else
                 success = false;
         };
 
         if (success === false)
-            alert('Err contacting the server');
+            triggerAlert('error', 'Connection Timed Out');
     }
+
+    return false;
+}
+
+function reSend() {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=resendActivation&Email=' + document.getElementById('email').value + '&Password=' + document.getElementById('pass').value, true);
+
+    request.send(); // Send request to server
+
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200)
+            if (request.responseText === 'Code 1')
+                triggerAlert('success', 'Activation Code Has Been Re-Sent');
+            else
+                triggerAlert('error', 'Incorrect Email / Password');
+        else
+            success = false;
+    };
+
+    if (success === false)
+        triggerAlert('error', 'Connection Timed Out');
 
     return false;
 }
@@ -197,4 +228,22 @@ function changePassVisual() {
         document.getElementById('pass').type = 'password';
     else
         document.getElementById('pass').type = 'text';
+}
+
+/* Alerts */
+function triggerAlert(className, content) {
+    var icon;
+    switch (className) {
+        case 'warning': icon = 'fa fa-exclamation-triangle'; break;
+        case 'error': icon = 'fa fa-times'; break;
+        case 'success': icon = 'fa fa-check-circle'; break;
+    }
+    document.getElementById('alertBox').innerHTML = '<div class=\"alert ' + className + '\"><i class=\"' + icon + '\" style=\"padding: 5px\" aria-hidden="true"></i>' + content + '</div class=\"alertContent\">';
+
+    // Auto Fade
+    setTimeout(function () {
+        var close = document.getElementsByClassName("alert");
+        for (var i = 0; i < close.length; i++)
+            close[i].style.display = "none";
+    }, 3000);
 }
