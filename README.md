@@ -41,15 +41,22 @@
 - **Phase 5 - All together** <br />
    - [x] Create *'Default.aspx'*
    - [x] Add Ajax templates
-   - [ ] Launch tests
+   - [x] Launch tests
 
 - **Phase 6 - Activation section** <br />
    - [x] Create *'Activation.aspx'*
    - [x] Add responsive styles
-   - [ ] Configure SMTP services
-   - [ ] Design Email layout, linkings and resources
-   - [ ] Create *Activation Code*  using *User ID*
+   - [x] Configure SMTP services
+   - [x] Design Email layout, linkings and resources
+   - [x] Create *Activation Code*  using *User ID*
    - [ ] Resned functionality, timeout
    - [ ] Add Backdoor to *'signup'* section for email edition
-   - [ ] Create Ajax capable template and add to *'Default.aspx'*
+   - [x] Create Ajax capable template and add to *'Default.aspx'*
+   - [ ] Launch tests
+   
+- **Phase 7 - Forgota Password section** <br />
+   - [ ] Create *'forgotPassword.aspx'*
+   - [ ] Add responsive styles
+   - [ ] Configure SMTP services
+   - [ ] Design Email layout, linkings and resources
    - [ ] Launch tests
