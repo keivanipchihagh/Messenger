@@ -10,6 +10,6 @@
 namespace Messenger {
     
     
-    public partial class _default {
+    public partial class Default {
     }
 }

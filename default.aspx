@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="default.aspx.cs" Inherits="Messenger._default" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Messenger.Default" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,31 +39,26 @@
 
                     <div id="alertBox"></div>
 
-                    <div class="wrap-input100 validate-input">
-                        <input class="input100" type="text" name="email" id="email" placeholder="Email Address" required="required">
-                    </div>
+                    <div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" maxlength="50" placeholder="Email Address" required="required"></div>
 
                     <div class="wrap-input100 validate-input">
-                        <span class="btn-show-pass">
-                            <i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle('fa-eye-slash'); changePassVisual()"></i>
-                        </span>
-                        <input class="input100" type="password" name="pass" id="pass" placeholder="Password" required="required">
+                        <span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle('fa-eye-slash'); changePassVisual()"></i></span>
+                        <input class="input100" type="password" name="pass" maxlength="50" id="pass" placeholder="Password" required="required">
                     </div>
 
                     <div class="container-login100-form-btn">
-                        <div class="wrap-login100-form-btn">
-                            <div class="login100-form-bgbtn"></div>
-                            <button class="login100-form-btn">Login</button>
-                        </div>
+                        <div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn">Login</button></div>
                     </div>
 
                     <div class="text-center p-t-20">
                         <span class="txt1">Not a Member yet?</span>
                         <a class="txt2" onclick="switchLayout('signup')"> Sign up!</a>
+                        <br /><span class="txt1">Forgot Password?</span>
+                        <a class="txt2" onclick="switchLayout('recoverPassword')"> Recover Now!</a>
                     </div>
                 </form>
             </div>            
         </div>
-    </div>
+    </div>    
 </body>
 </html>
