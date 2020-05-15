@@ -17,6 +17,13 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <script type="text/javascript"> 
+        /** Disable Back Button */
+        function preventBack() { window.history.forward(); }           
+        setTimeout("preventBack()", 0);          
+        window.onunload = function () { null }; 
+    </script>
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
@@ -28,21 +35,21 @@
     <div id="mainContainer" class="limiter">
         <div class="container-login100">
             <div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px">
-                <form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()">
+                <form class="login100-form validate-form" id="form" name="form" action="Home.aspx" method="post" onsubmit="return login()">
                     <input name="identifier" id="identifier" type="hidden" value="login" />
                     
                     <span class="login100-form-title p-b-26">
                         <img class="loginImg" src="assets/img/favicon.png" />
                         <h3 style="float: left">Messenger</h3>
                         <p style="font-family: 'Raleway'">Web-Based Messaging platform</p>                        
-                    </span>                    
+                    </span>
 
                     <div id="alertBox"></div>
 
                     <div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" maxlength="50" placeholder="Email Address" required="required"></div>
 
                     <div class="wrap-input100 validate-input">
-                        <span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle('fa-eye-slash'); changePassVisual()"></i></span>
+                        <span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle('fa-eye-slash'); changePassVisual()"></i></span>
                         <input class="input100" type="password" name="pass" maxlength="50" id="pass" placeholder="Password" required="required">
                     </div>
 

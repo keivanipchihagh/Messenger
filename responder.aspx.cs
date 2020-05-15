@@ -8,7 +8,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "Data Source=www.keivanipchihagh.ir;Initial Catalog = keivani3_Messenger; Persist Security Info=True;User ID = keivani3_keivan; Password=Keivan25251380";
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
         private Random random = new Random();

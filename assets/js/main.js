@@ -97,15 +97,16 @@
 
 })(jQuery);
 
+/* Switch Layouts (AJAX) */
 function switchLayout(page) {
     if (page === 'signup') {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form" onsubmit="return false"><input name="identifier" id="identifier" type="hidden" value="signup" /><!-- Header --><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100"><input class="input100" type="text" name="fullname" id="fullname" maxlength="50" required="required" placeholder="Full Name"></div><div class="wrap-input100"><input class="input100" type="text" name="username" id="username" maxlength="30" required="required" placeholder="User Name"></div><div class="wrap-input100"><input class="input100" type="text" name="email" id="email" maxlength="50" maxlength="30" required="required" placeholder="Email Address"></div><div class="wrap-input100"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" maxlength="50" id="pass" maxlength="50 required="required" placeholder="Password"></div><div class="wrap-input100"><input class="input100" type="password" name="confirm" id="confirm" maxlength="50" required="required" placeholder="Confirm Password"></div><!-- Footer --><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn" onclick="signup()">Sign up</button></div></div><div class="text-center p-t-20"><span class="txt1">Already have an account?</span><a class="txt2" href="#" onclick="switchLayout(\'login\')"> Login!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form" onsubmit="return false"><input name="identifier" id="identifier" type="hidden" value="signup" /><!-- Header --><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100"><input class="input100" type="text" name="fullname" id="fullname" maxlength="50" required="required" placeholder="Full Name"></div><div class="wrap-input100"><input class="input100" type="text" name="username" id="username" maxlength="30" required="required" placeholder="User Name"></div><div class="wrap-input100"><input class="input100" type="text" name="email" id="email" maxlength="50" maxlength="30" required="required" placeholder="Email Address"></div><div class="wrap-input100"><span class="btn-show-pass" style=\"background-color: white\"><i class="fa fa-eye" aria-hidden="true" style=\"margin: 3px\" title=\"Show/Hide Password\" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i><i class="fa fa-shield" title="Generate Random Password" aria-hidden="true" style=\"margin: 3px\" onclick=\"suggestRandomPassword()\"></i></span><input class="input100" type="password" name="pass" maxlength="50" id="pass" maxlength="50 required="required" placeholder="Password"></div><div class="wrap-input100"><input class="input100" type="password" name="confirm" id="confirm" maxlength="50" required="required" placeholder="Confirm Password"></div><!-- Footer --><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn" onclick="signup()">Sign up</button></div></div><div class="text-center p-t-20"><span class="txt1">Already have an account?</span><a class="txt2" href="#" onclick="switchLayout(\'login\')"> Login!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Signup';
     } else if (page === 'login') {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" maxlength="50" placeholder="Email Address" required="required"></div><div class="wrap-input100 validate-input"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" maxlength="50" placeholder="Password" required="required"></div><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn">Login</button></div></div><div class="text-center p-t-20"><span class="txt1">Not a Member yet?</span><a class="txt2" onclick="switchLayout(\'signup\')"> Sign up!</a><br /><span class="txt1">Forgot Password?</span><a class="txt2" onclick="switchLayout(\'recoverPassword\')"> Recover Now!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="Home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div class="wrap-input100 validate-input"><input class="input100" type="text" name="email" id="email" maxlength="50" placeholder="Email Address" required="required"></div><div class="wrap-input100 validate-input"><span class="btn-show-pass"><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></span><input class="input100" type="password" name="pass" id="pass" maxlength="50" placeholder="Password" required="required"></div><div class="container-login100-form-btn"><div class="wrap-login100-form-btn"><div class="login100-form-bgbtn"></div><button class="login100-form-btn">Login</button></div></div><div class="text-center p-t-20"><span class="txt1">Not a Member yet?</span><a class="txt2" onclick="switchLayout(\'signup\')"> Sign up!</a><br /><span class="txt1">Forgot Password?</span><a class="txt2" onclick="switchLayout(\'recoverPassword\')"> Recover Now!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Login';
     } else if (page === 'activate') {
-        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div style="text-align: center"><h4 style="margin: 10px; font-family: \'Raleway\'">Account Created Successfully!</h4><p style="font-family: \'Raleway\'; color: black; font-size: small"><input type=\"hidden\" id=\"email\" name=\"email\" value=\"\">An Activation Code has been send to \'' + document.getElementById('email').value + '\'. Code expires in 24 Hours</p></div><div class="text-center p-t-10" style="border-top: 1px solid #666666; margin-top: 10px"><span class="txt1">No activation code?</span><a class="txt2" onclick="reSendActivationCode()"> Resend!</a></div></form></div></div>';
+        document.getElementById('mainContainer').innerHTML = '<div class="container-login100"><div class="wrap-login100" style="box-shadow: white 0px 0px 10px 3px"><form class="login100-form validate-form" id="form" name="form" action="Home.aspx" method="post" onsubmit="return login()"><input name="identifier" id="identifier" type="hidden" value="login" /><span class="login100-form-title p-b-26"><img class="loginImg" src="assets/img/favicon.png" /><h3 style="float: left">Messenger</h3><p style="font-family: \'Raleway\'">Web-Based Messaging platform</p></span><div id="alertBox"></div><div style="text-align: center"><h4 style="margin: 10px; font-family: \'Raleway\'">Account Created Successfully!</h4><p style="font-family: \'Raleway\'; color: black; font-size: small"><input type=\"hidden\" id=\"email\" name=\"email\" value=\"\">An Activation Code has been send to \'' + document.getElementById('email').value + '\'. Code expires in 24 Hours</p></div><div class="text-center p-t-10" style="border-top: 1px solid #666666; margin-top: 10px"><span class="txt1">No activation code?</span><a class="txt2" onclick="reSendActivationCode()"> Resend!</a></div></form></div></div>';
         document.getElementById('title').innerText = 'Messenger | Activation';
     } else if (page === 'recoverPassword') { 
         document.getElementById('mainContainer').innerHTML = "<div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><div id=\"alertBox\"></div><div style=\"width: 100%; text-align: center; font-family: 'Raleway'; margin: 5px\"><h3>Password Recovery</h3><p style=\"font-family: \'Raleway\'\">No worries, Instructions will be sent to you</p></div><div class=\"wrap-input100 validate-input\"><input class=\"input100\" type=\"text\" name=\"email\" id=\"email\" placeholder=\"Email Address\" maxlength=\"50\" required=\"required\"></div><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" onclick=\"recoverPassword()\">Send Recovery E-Mail</button></div></div><div class=\"text-center p-t-20\"><span class=\"txt1\">Remember Password?</span><a class=\"txt2\" onclick=\"switchLayout('login')\"> Login!</a></div></div></div>";
@@ -113,12 +114,17 @@ function switchLayout(page) {
     }
 }
 
+/* Validate Inputs */
 function validate(signup) {
 
     var emailPattern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/;
 
     if (signup === true && document.getElementById('fullname').value === '') // Full name 
         return false;
+    if (signup === true && /[.-_=+'";:!@,<>/\|#$%^&*()~`]+/.test(document.getElementById('fullname').value)) {
+        triggerAlert("error", "FullName Contains Invalid Characters", 4000);
+        return false;
+    }
 
     if (signup === true && document.getElementById('username').value === '') // User name 
         return false;
@@ -126,6 +132,10 @@ function validate(signup) {
     if (signup === true && document.getElementById('username').value.includes(' ')) {
         triggerAlert('error', 'Username Can Not Contain Spaces', 4000);
         document.getElementById('username').value = '';
+        return false;
+    }
+    if (signup === true && /[.-_=+'";:!@,<>/\|#$%^&*()~`]+/.test(document.getElementById('username').value)) {
+        triggerAlert("error", "UserName Contains Invalid Characters", 4000);
         return false;
     }
     
@@ -154,9 +164,10 @@ function validate(signup) {
     return true;
 }
 
+/* Sign Up (AJAX) */
 function signup() {
 
-    if (validate(true) === true && document.getElementById('identifier').value === 'signup') {
+    if (validate(true) === true && document.getElementById('identifier').value === 'signup' && checkPasswordStrength()) {
         
         var request = new XMLHttpRequest();
         
@@ -194,6 +205,7 @@ function signup() {
     }
 }
 
+/* Login (AJAX) */
 function login() {
 
     if (validate(false) === true && document.getElementById('identifier').value === 'login') {
@@ -226,6 +238,7 @@ function login() {
     return false;
 }
 
+/* Recover Password (AJAX) */
 function recoverPassword() {
     var request = new XMLHttpRequest();
     request.open('GET', 'responder.aspx?Action=recoverPassword&Email=' + document.getElementById('email').value, true);
@@ -251,6 +264,7 @@ function recoverPassword() {
         triggerAlert('error', 'Connection Timed Out', 5000);
 }
 
+/* Re-Send Activation Code (AJAX) */
 function reSendActivationCode() {
     var request = new XMLHttpRequest();
     request.open('GET', 'responder.aspx?Action=resendActivationCode&Email=' + document.getElementById('email').value, true);
@@ -275,6 +289,7 @@ function reSendActivationCode() {
         triggerAlert('error', 'Connection Timed Out', 5000);
 }
 
+/* Reset Password (AJAX) */
 function resetPassword() {
     if (document.getElementById('pass').value === document.getElementById('confirm').value) {
         if (document.getElementById('pass').value.length >= 8) {
@@ -311,6 +326,34 @@ function resetPassword() {
     }
 }
 
+/* suggest Random Strong Password */
+function suggestRandomPassword() {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_-=+[]{};:<>';
+    var charactersLength = characters.length;
+    for (var i = 0; i < 25; i++)
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+
+    document.getElementById('pass').value = document.getElementById('confirm').value = result;
+}
+
+/* Check Password Strength */
+function checkPasswordStrength() {
+    if (/\d/.test(document.getElementById('pass').value) === false) {
+        triggerAlert('warning', 'Password Must Contain Digits', 4000);
+        return false;
+    } else if (/[a-z]/.test(document.getElementById('pass').value) === false) {
+        triggerAlert('warning', 'Password Must Contain Lower Charecters', 4000);
+        return false;
+    } else if (/[A-Z]/.test(document.getElementById('pass').value) === false) {
+        triggerAlert('warning', 'Password Must Contain Upper Charecters', 4000);
+        return false;
+    }
+
+    return true;
+}
+
+/* Toggle Password Type */
 function changePassVisual() {    
     if (document.getElementById('pass').type === 'text')
         document.getElementById('pass').type = 'password';
@@ -336,8 +379,11 @@ function triggerAlert(className, content, interval) {
     }, interval);
 }
 
-// Disable Back Button
-window.history.forward();
-function noBack() {
+/* Disable Back Button */
+function preventBack() {
     window.history.forward();
 }
+
+setTimeout("preventBack()", 0);
+
+window.onunload = function () { null }; 

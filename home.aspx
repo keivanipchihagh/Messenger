@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="home.aspx.cs" Inherits="Messenger.home" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Home.aspx.cs" Inherits="Messenger.Home" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -112,7 +112,6 @@
                 </div>
             </div>
             <!-- End  Footer -->
-
         </div>
     </header>
     <!-- End Header -->
@@ -141,7 +140,7 @@
     <script src="assets/vendor/aos/aos.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="assets/js/main.js"></script>    
+    <script src="assets/js/main.js"></script>
 
 </body>
 </html>
