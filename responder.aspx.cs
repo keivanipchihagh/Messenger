@@ -8,7 +8,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "Data Source=www.keivanipchihagh.ir;Initial Catalog = keivani3_Messenger; Persist Security Info=True;User ID = keivani3_keivan; Password=Keivan25251380";
+        public const string connectionString = "xxxxxxxxxxxxxxxxxxxxx";
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
         private Random random = new Random();
@@ -21,165 +21,13 @@ namespace Messenger
 
                 switch (Request.QueryString["Action"])
                 {
-                    /*** ---------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-                    case "signup":
-
-                        /***
-                         * Check If UserName Is Taken
-                         */
-                        sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_UserName = @username", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-
-                        SqlDataReader dataReader = sqlCommand.ExecuteReader();
-                        if (dataReader.Read())
-                            Response.Write("Code 0");   // Code 0: 'Another user with the same username exists'
-                        else
-                        {
-                            sqlConnection.Close();  // Close Connection
-                            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
-                            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                            sqlConnection.Open();   // Open Connection
-
-                            dataReader = sqlCommand.ExecuteReader();
-                            if (dataReader.Read())
-                                Response.Write("Code 2");   // Code 0: 'Another user with the same email exists'
-                            else
-                            {
-                                /***
-                                 * Get Max Member_ID
-                                 */
-                                sqlConnection.Close();  // Close Connection
-                                sqlCommand = new SqlCommand("SELECT MAX(Members_ID) AS Members_ID FROM Members", sqlConnection);    // Initialize 
-                                sqlConnection.Open();   // Open Connection
-                                dataReader = sqlCommand.ExecuteReader();
-
-                                /***
-                                 * Generate Activation Code
-                                 */
-                                string activationCode = null;
-                                if (dataReader.Read())
-                                    activationCode = getActivationCode(Convert.ToString(Convert.ToInt32(dataReader["Members_ID"]) + 1));
-
-                                sendActivationMail(Request.QueryString["Email"], activationCode); // Send Activation Email
-
-                                /***
-                                 * Insert Data Into Databse
-                                 */
-                                sqlConnection.Close();  // Close Connection
-                                sqlCommand = new SqlCommand("INSERT INTO Members (Members_FullName, Members_UserName, Members_Email, Members_Password, Members_ActivationCode, Members_IsActivated) VALUES (@fullname, @username, @email, @password, @activationCode, 'false')", sqlConnection);    // Initialize command
-                                sqlCommand.Parameters.Add(new SqlParameter("@fullname", Request.QueryString["FullName"]));  // Add parameter
-                                sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
-                                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                                sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
-                                sqlCommand.Parameters.Add(new SqlParameter("@activationCode", activationCode));  // Add parameter
-                                sqlConnection.Open();   // Open Connection
-                                sqlCommand.ExecuteNonQuery();   // Insert
-                                sqlConnection.Close();  // Close Connection
-
-                                Response.Write("Code 1");   // Code 1: 'Insertion & activation was successfull'
-                            }
-                        }
-                        break;
-
-                    /*** ---------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-                    case "login":
-                        sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
-                        sqlConnection.Open();   // Open connection
-
-                        dataReader = sqlCommand.ExecuteReader();
-                        if (dataReader.Read())
-                            if (dataReader["Members_IsActivated"].ToString() == "true")
-                                Response.Write("Code 1");   // Code 1: 'User exists'
-                            else
-                                Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
-                        else
-                            Response.Write("Code 0");   //  Code 0: 'User does not exist'
-
-                        break;
-
-                    /*** ---------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-                    case "activate":
-                        sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-                        dataReader = sqlCommand.ExecuteReader();
-
-                        if (dataReader.Read())
-                            if (dataReader["Members_IsActivated"].ToString() == "false")
-                            {
-                                /***
-                                 * Activate Account
-                                 */
-                                sqlConnection.Close();  // Close Connection
-                                sqlCommand = new SqlCommand("UPDATE Members SET Members_IsActivated = 'true'", sqlConnection);    // Initialize command
-                                sqlConnection.Open();   // Open Connection
-                                sqlCommand.ExecuteNonQuery();
-
-                                Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Activated</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Account Activated Successfully!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
-                            }
-                            else
-                                Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Expired</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Expired Link!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
-                        else
-                            Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Not Found - 404</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Error 404 - Invalid Link!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
-                        break;
-
-                    case "resendActivationCode":
-                        sqlCommand = new SqlCommand("SELECT Members_ActivationCode FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-                        dataReader = sqlCommand.ExecuteReader();
-
-                        if (dataReader.Read())
-                        {
-                            sendActivationMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());
-                            Response.Write("Code 1");
-                        }
-                        else
-                            Response.Write("Code 2");
-                        break;
-
-                    case "recoverPassword":
-                        sqlCommand = new SqlCommand("SELECT Members_ActivationCode FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-                        dataReader = sqlCommand.ExecuteReader();
-
-                        if (dataReader.Read())
-                        {
-                            sendRecoverynMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());   // Send Mail
-                            Response.Write("Code 1");
-                        }
-                        else
-                            Response.Write("Code 2");
-                        break;
-
-                    case "requestPasswordRecovery":
-                        sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-                        dataReader = sqlCommand.ExecuteReader();
-
-                        if (dataReader.Read())
-                            Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Reset Password</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"assets/img/favicon.png\" rel=\"icon\"><link href=\"assets/img/apple-touch-icon.png\" rel=\"apple-touch-icon\"><script src=\"assets/js/main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><!-- StyleSheetes --><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><input name=\"identifier\" id=\"identifier\" type=\"hidden\" value=\"login\" /><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><div id=\"alertBox\"></div><div style=\"width: 100%; text-align: center; font-family: 'Raleway'; margin: 5px\"><h3>Password Recovery</h3></div><input id=\"email\" name=\"email\" type=\"hidden\" value=\"" + Request.QueryString["Email"] + "\" /><input id=\"code\" name=\"code\" type=\"hidden\" value=\"" + Request.QueryString["ActivationCode"] + "\" /><div class=\"wrap-input100 validate-input\"><span class=\"btn-show-pass\"><i class=\"fa fa-eye\" aria-hidden=\"true\" onclick=\"this.classList.toggle('fa-eye-slash'); changePassVisual()\"></i></span><input class=\"input100\" type=\"password\" name=\"pass\" id=\"pass\" placeholder=\"New Password\" required=\"required\"></div><div class=\"wrap-input100 validate-input\"><span class=\"btn-show-pass\"></span><input class=\"input100\" type=\"password\" name=\"confirm\" id=\"confirm\" placeholder=\"Confirm New Password\" required=\"required\"></div><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" onclick=\"resetPassword()\">Reset Password</button></div></div></div></div></div></body></html>");
-                        else
-                            Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Reset Password</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"assets/img/favicon.png\" rel=\"icon\"><link href=\"assets/img/apple-touch-icon.png\" rel=\"apple-touch-icon\"><script src=\"assets/js/main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><input name=\"identifier\" id=\"identifier\" type=\"hidden\" value=\"login\" /><span class=\"login100-form-title p-b-26\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3 style=\"float: left\">Messenger</h3> <p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><div id=\"alertBox\"></div><div style=\"width: 100%; text-align: center; font-family: 'Raleway'; margin: 5px\"><h3>Password Recovery</h3><p>This link contains Invalid signeratures. Session has been terminated due to EA violations.</p></div></div></div></div></body></html>");
-
-                        break;
-
-                    case "resetPassword":
-                        sqlCommand = new SqlCommand("UPDATE Members SET Members_Password = @password WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
-                        sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
-                        sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                        sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
-                        sqlConnection.Open();   // Open Connection
-                        sqlCommand.ExecuteNonQuery();
-                        Response.Write("Code 1");
-                        break;
+                    case "signup": signup(); break;
+                    case "login": login(); break;
+                    case "activate": activate(); break;
+                    case "resendActivationCode": resendActivation(); break;
+                    case "recoverPassword": recoverPassword(); break;
+                    case "requestPasswordRecovery": requestPasswordRecovery(); break;
+                    case "resetPassword": resetPassword(); break;
                 }
             }
             catch (Exception ex) { Response.Write(ex.Message); }
@@ -197,7 +45,7 @@ namespace Messenger
          */
         protected string getRandomChar(char firstChar)
         {
-            char[] chars = "1234567890QWERTYUIOPLKJHGFDSAZXCVBNM".ToCharArray();            
+            char[] chars = "1234567890QWERTYUIOPLKJHGFDSAZXCVBNM".ToCharArray();
             return firstChar + chars[random.Next(0, chars.Length)].ToString() + chars[random.Next(0, chars.Length)].ToString() + chars[random.Next(0, chars.Length)].ToString();
         }
 
@@ -231,6 +79,274 @@ namespace Messenger
             smtpClient.Credentials = new NetworkCredential("noreply@keivanipchihagh.ir", "Keivan25251380");
             smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
             smtpClient.Send(mailMessage);
+        }
+
+        /***
+         * Login
+         */
+        protected void login()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            /***
+             * Check If Email Exists Or Not
+             */
+            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlConnection.Open();
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            bool recordExists = false;
+            string ID = "Unknown";
+            if (dataReader.Read())
+            {
+                ID = dataReader["Members_ID"].ToString();
+                recordExists = true;
+            }
+            sqlConnection.Close();
+
+            sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+            sqlConnection.Open();   // Open connection
+
+            dataReader = sqlCommand.ExecuteReader();
+            if (dataReader.Read())
+                if (dataReader["Members_IsActivated"].ToString() == "true")
+                {
+                    Response.Write("Code 1");   // Code 1: 'User exists'
+                    if (recordExists) writeLog(ID, "Granted");
+                }
+                else
+                {
+                    Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
+                    if (recordExists) writeLog(ID, "Denied");
+                }
+            else
+            {
+                Response.Write("Code 0");   //  Code 0: 'User does not exist'
+                writeLog(ID, "Denied");
+
+            }
+        }
+
+        /***
+         * Writes Log Info
+         */
+        protected void writeLog(string ID, string Auth)
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("INSERT INTO Logs (Log_MemberID, Log_StaticIP, Log_Location, Log_DateTime, Log_Authentication) VALUES (@ID, @IP, @Loc, @DateTime, @Auth)", sqlConnection);
+            sqlCommand.Parameters.Add(new SqlParameter("@ID", ID));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@Loc", "UNKNOWN"));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@DateTime", DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff")));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@Auth", Auth));  // Add parameter
+            sqlConnection.Open();
+            sqlCommand.ExecuteNonQuery();
+            sqlConnection.Close();
+        }
+
+        protected void checkLog(string ID)
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            if (ID != "Unknown")
+            {
+                sqlCommand = new SqlCommand("SELECT TOP 5 * FROM Logs WHERE (Log_MemberID = @ID) ORDER BY DESC", sqlConnection);
+                sqlCommand.Parameters.Add(new SqlParameter("@ID", ID));  // Add parameter
+            }
+
+            sqlConnection.Open();
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+
+            sqlConnection.Close();
+        }
+
+        /***
+         * Sign Up
+         */
+        protected void signup()
+        {
+            /***
+             * Check If UserName Is Taken
+             */
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_UserName = @username", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            if (dataReader.Read())
+                Response.Write("Code 0");   // Code 0: 'Another user with the same username exists'
+            else
+            {
+                sqlConnection.Close();  // Close Connection
+                sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+
+                dataReader = sqlCommand.ExecuteReader();
+                if (dataReader.Read())
+                    Response.Write("Code 2");   // Code 0: 'Another user with the same email exists'
+                else
+                {
+                    /***
+                     * Get Max Member_ID
+                     */
+                    sqlConnection.Close();  // Close Connection
+                    sqlCommand = new SqlCommand("SELECT MAX(Members_ID) AS Members_ID FROM Members", sqlConnection);    // Initialize 
+                    sqlConnection.Open();   // Open Connection
+                    dataReader = sqlCommand.ExecuteReader();
+
+                    /***
+                     * Generate Activation Code
+                     */
+                    string activationCode = null;
+                    if (dataReader.Read())
+                        activationCode = getActivationCode(Convert.ToString(Convert.ToInt32(dataReader["Members_ID"]) + 1));
+
+                    sendActivationMail(Request.QueryString["Email"], activationCode); // Send Activation Email
+
+                    /***
+                     * Insert Data Into Databse
+                     */
+                    sqlConnection.Close();  // Close Connection
+                    sqlCommand = new SqlCommand("INSERT INTO Members (Members_FullName, Members_UserName, Members_Email, Members_Password, Members_ActivationCode, Members_IsActivated) VALUES (@fullname, @username, @email, @password, @activationCode, 'false')", sqlConnection);    // Initialize command
+                    sqlCommand.Parameters.Add(new SqlParameter("@fullname", Request.QueryString["FullName"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@activationCode", activationCode));  // Add parameter
+                    sqlConnection.Open();   // Open Connection
+                    sqlCommand.ExecuteNonQuery();   // Insert
+                    sqlConnection.Close();  // Close Connection
+
+                    Response.Write("Code 1");   // Code 1: 'Insertion & activation was successfull'
+                }
+            }
+        }
+
+        /***
+         * Activate
+         */
+        protected void activate()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            if (dataReader.Read())
+                if (dataReader["Members_IsActivated"].ToString() == "false")
+                {
+                    /***
+                     * Activate Account
+                     */
+                    sqlConnection.Close();  // Close Connection
+                    sqlCommand = new SqlCommand("UPDATE Members SET Members_IsActivated = 'true'", sqlConnection);    // Initialize command
+                    sqlConnection.Open();   // Open Connection
+                    sqlCommand.ExecuteNonQuery();
+
+                    Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Activated</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\" style=\"text-align: left\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3>Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Account Activated Successfully!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
+                }
+                else
+                    Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Expired</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\" style=\"text-align: left\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3>Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Expired Link!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
+            else
+                Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Not Found - 404</title><meta charset=\"UTF - 8\"><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1\"><link href=\"assets / img / favicon.png\" rel=\"icon\"><link href=\"assets / img / apple - touch - icon.png\" rel=\"apple - touch - icon\"><script src=\"assets / js / main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><span class=\"login100-form-title p-b-26\" style=\"text-align: left\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3>Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><span id=\"dialog\" style=\"color: limegreen; text-decoration: underline\"></span><div style=\"text-align: center\"><h4 style=\"margin: 10px; font-family: 'Raleway'\">Error 404 - Invalid Link!</h4><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" style=\"font-family: 'Raleway'\" onclick=\"window.location.replace('default.aspx')\">LOGIN</button></div></div></div></div></div></div</body></html>");
+        }
+
+        /***
+         * Resend Activation
+         */
+        protected void resendActivation()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("SELECT Members_ActivationCode FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            if (dataReader.Read())
+            {
+                sendActivationMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());
+                Response.Write("Code 1");
+            }
+            else
+                Response.Write("Code 2");
+        }
+
+        /***
+         * Recover Password
+         */
+        protected void recoverPassword()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("SELECT Members_ActivationCode FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            if (dataReader.Read())
+            {
+                sendRecoverynMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());   // Send Mail
+                Response.Write("Code 1");
+            }
+            else
+                Response.Write("Code 2");
+        }
+
+        /***
+         * Request Password Recovery
+         */
+        protected void requestPasswordRecovery()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+
+            if (dataReader.Read())
+                Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Reset Password</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"assets/img/favicon.png\" rel=\"icon\"><link href=\"assets/img/apple-touch-icon.png\" rel=\"apple-touch-icon\"><script src=\"assets/js/main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><!-- StyleSheetes --><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><input name=\"identifier\" id=\"identifier\" type=\"hidden\" value=\"login\" /><span class=\"login100-form-title p-b-26\" style=\"text-align: left\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3>Messenger</h3><p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><div id=\"alertBox\"></div><div style=\"width: 100%; text-align: center; font-family: 'Raleway'; margin: 5px\"><h3>Password Recovery</h3></div><input id=\"email\" name=\"email\" type=\"hidden\" value=\"" + Request.QueryString["Email"] + "\" /><input id=\"code\" name=\"code\" type=\"hidden\" value=\"" + Request.QueryString["ActivationCode"] + "\" /><div class=\"wrap-input100 validate-input\"><span class=\"btn-show-pass\"><i class=\"fa fa-eye\" aria-hidden=\"true\" onclick=\"this.classList.toggle('fa-eye-slash'); changePassVisual()\"></i></span><input class=\"input100\" type=\"password\" name=\"pass\" id=\"pass\" placeholder=\"New Password\" required=\"required\"></div><div class=\"wrap-input100 validate-input\"><span class=\"btn-show-pass\"></span><input class=\"input100\" type=\"password\" name=\"confirm\" id=\"confirm\" placeholder=\"Confirm New Password\" required=\"required\"></div><div class=\"container-login100-form-btn\"><div class=\"wrap-login100-form-btn\"><div class=\"login100-form-bgbtn\"></div><button class=\"login100-form-btn\" onclick=\"resetPassword()\">Reset Password</button></div></div></div></div></div></body></html>");
+            else
+                Response.Write("<!DOCTYPE html><html lang=\"en\"><head><title id=\"title\">Messenger | Reset Password</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"assets/img/favicon.png\" rel=\"icon\"><link href=\"assets/img/apple-touch-icon.png\" rel=\"apple-touch-icon\"><script src=\"assets/js/main.js\"></script><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/util.css\"><link rel=\"stylesheet\" type=\"text/css\" href=\"css/main.css\"></head><body><div id=\"mainContainer\" class=\"limiter\"><div class=\"container-login100\"><div class=\"wrap-login100\" style=\"box-shadow: white 0px 0px 10px 3px\"><input name=\"identifier\" id=\"identifier\" type=\"hidden\" value=\"login\" /><span class=\"login100-form-title p-b-26\" style=\"text-align: left\"><img class=\"loginImg\" src=\"assets/img/favicon.png\" /><h3>Messenger</h3> <p style=\"font-family: 'Raleway'\">Web-Based Messaging platform</p></span><div id=\"alertBox\"></div><div style=\"width: 100%; text-align: center; font-family: 'Raleway'; margin: 5px\"><h3>Password Recovery</h3><p>This link contains Invalid signeratures. Session has been terminated due to EA violations.</p></div></div></div></div></body></html>");
+        }
+
+        /***
+         * Reset Password
+         */
+        protected void resetPassword()
+        {
+            sqlConnection = new SqlConnection(connectionString);
+            sqlCommand = new SqlCommand("UPDATE Members SET Members_Password = @password WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            sqlCommand.ExecuteNonQuery();
+            Response.Write("Code 1");
+        }
+
+        /***
+         * Get Client IP Address (Proxy Proof)
+         */
+        protected string GetIPAddress()
+        {
+            System.Web.HttpContext context = System.Web.HttpContext.Current;
+            string ipAddress = context.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+            if (!string.IsNullOrEmpty(ipAddress))
+            {
+                string[] addresses = ipAddress.Split(',');
+                if (addresses.Length != 0)
+                {
+                    return addresses[0];
+                }
+            }
+
+            return context.Request.ServerVariables["REMOTE_ADDR"];
         }
     }
 };

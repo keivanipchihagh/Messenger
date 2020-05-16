@@ -507,10 +507,10 @@ iframe {
 }
 
 .loginImg {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
     float: left;
-    margin: 5px;
+    margin: 5px 10px 5px 5px;
 }
 
 .alert {
