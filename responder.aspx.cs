@@ -2,19 +2,27 @@
 using System.Data.SqlClient;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Messenger
 {
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "xxxxxxxxxxxxxxxxxxxxxxx";
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
         private Random random = new Random();
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Optimize Cache
+            Response.Buffer = true;
+            Response.CacheControl = "no-cache";
+            Response.AddHeader("pragma", "no-cache");
+            Response.Expires = -1;
+
             try
             {
                 sqlConnection = new SqlConnection(connectionString);    // Initialize connection
@@ -107,7 +115,7 @@ namespace Messenger
             sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
             sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
             sqlConnection.Open();   // Open connection
-
+            string s = Request.QueryString["Password"];
             dataReader = sqlCommand.ExecuteReader();
             if (dataReader.Read())
                 if (dataReader["Members_IsActivated"].ToString() == "true")
@@ -142,22 +150,6 @@ namespace Messenger
             sqlCommand.Parameters.Add(new SqlParameter("@Auth", Auth));  // Add parameter
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();
-            sqlConnection.Close();
-        }
-
-        protected void checkLog(string ID)
-        {
-            sqlConnection = new SqlConnection(connectionString);
-            if (ID != "Unknown")
-            {
-                sqlCommand = new SqlCommand("SELECT TOP 5 * FROM Logs WHERE (Log_MemberID = @ID) ORDER BY DESC", sqlConnection);
-                sqlCommand.Parameters.Add(new SqlParameter("@ID", ID));  // Add parameter
-            }
-
-            sqlConnection.Open();
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
-
-
             sqlConnection.Close();
         }
 
@@ -214,7 +206,7 @@ namespace Messenger
                     sqlCommand.Parameters.Add(new SqlParameter("@fullname", Request.QueryString["FullName"]));  // Add parameter
                     sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
                     sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                    sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@password", getMD5Hash(Request.QueryString["Password"])));  // Add parameter
                     sqlCommand.Parameters.Add(new SqlParameter("@activationCode", activationCode));  // Add parameter
                     sqlConnection.Open();   // Open Connection
                     sqlCommand.ExecuteNonQuery();   // Insert
@@ -347,6 +339,24 @@ namespace Messenger
             }
 
             return context.Request.ServerVariables["REMOTE_ADDR"];
+        }
+
+        /***
+         * MD5 Hashing Algorithm
+         */
+        protected string getMD5Hash(string input)
+        {
+            // Calculate MD5 Hash
+            MD5 md5 = MD5.Create();
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] hash = md5.ComputeHash(inputBytes);
+
+            // Convert Byte Array Into Hex String 
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < hash.Length; i++)
+                sb.Append(hash[i].ToString("X2"));
+
+            return sb.ToString();
         }
     }
 };
