@@ -214,21 +214,12 @@ iframe {
     align-items: center;
     padding: 15px;
     background: #f2f2f2;
-    background-image: url('\\assets\\img\\loginWallpaper.png');
     background-position: center;
 }
 
 .wrap-login100 {
-    width: 390px;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    padding: 30px 50px 33px 50px;
-    box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
-    -o-box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
-    -ms-box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
+    width: 850px;
+    /*overflow: hidden;*/
 }
 
 
@@ -534,7 +525,3 @@ iframe {
     .alert.success {
         background-color: #4CAF50;
     }
-
-.alertContent {
-    padding: 5px;
-}
