@@ -10,10 +10,10 @@
    - **Add AJAX functionality to pages** - 100% Completed
    - **Add dynamic error handling** - 100% Completed
    - **Security update patch 1 (Client Side)** - 100% Completed
-   - **Security update patch 2 (Server Side - Live Hashing Encryption)** - Not Started
+   - **Security update patch 2 (Server Side - Live Hashing Encryption)** - 40% Completed
    - **Code wrap patch 1** - 100% Completed
-   - **Code wrap patch 2** - 70% Completed
-   - **Final Test pathc 1** - Not Started
+   - **Code wrap patch 2** - 90% Completed
+   - **Final Test pathc 1** - 100% Completed
    - **Final Test pathc 2** - Not Started
 
 1. Phase 2 (Messenger)
