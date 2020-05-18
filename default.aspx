@@ -66,7 +66,7 @@ Author URL: http://keivanipchihagh.ir/
                                 </div>
                             </div>
                             <button type="submit" class="btn submit" onclick="return login()">Login</button>
-                            <a class="bottom-text-w3ls" style="margin-top: 22px; cursor: pointer">Account Not Activated Yet?</a>
+                            <a class="bottom-text-w3ls" style="margin-top: 22px; cursor: pointer">No Activation Email Yet?</a>
                         </form>
                     </article>
                 </div>
