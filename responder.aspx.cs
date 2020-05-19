@@ -36,10 +36,13 @@ namespace Messenger
 
                     case "activate": activate(); break; // Activate Account From Acivation Email
                     case "resendActivationCode": resendActivation(); break;     // Recends The Acivation Email
+                    case "checkActivationEmailExpiredDate": checkActivationEmailExpiredDate(); break;     // Checks Wether Link Has Been Expired Or Not
 
                     case "recoverPassword": recoverPassword(); break;   // Send A Recovery Password To The Inbox
                     case "redirectToRecoveryPage": redirectToRecoveryPage(); break; // Load & Setup The Recovery Password Page
                     case "resetPassword": resetPassword(); break;   // Update The Password From The Reset Email
+                    case "checkReocveryPasswordExpiredDate": checkReocveryPasswordExpiredDate(); break;     // Checks Wether Link Has Been Expired Or Not
+
                 }
             }
             catch (Exception ex) { Response.Write(ex.Message); }    // Show Error Message
@@ -98,47 +101,104 @@ namespace Messenger
          */
         protected void login()
         {
+            /* Check For Bans */
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            /***
-             * Check If Email Exists Or Not
-             */
-            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);  // Intialize Command
-            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-            sqlConnection.Open();   
+            sqlCommand = new SqlCommand("SELECT TOP 1 * FROM Logs WHERE Log_StaticIP = @IP AND Log_AuthenticationType = 'Ban' AND Log_AuthenticationResult = 'Banned' ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
+            sqlConnection.Open();   // Open Connection
             SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
 
-            bool recordExists = false;
-            string ID = "Unknown";
-
-            if (dataReader.Read())  // If Email Exists, Save ID
+            if (dataReader.Read())  // Chech If Ban Exists On The IP
             {
-                ID = dataReader["Members_ID"].ToString();
-                recordExists = true;
+                // Get Request Date & Time
+                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - requestedSpan;
+
+                if (differece.TotalMinutes <= 15)   // Still Banned
+                {
+                    Response.Write("Code 4");
+                    return;
+                }
             }
-            sqlConnection.Close();  // Close Connection
 
-            // Get Activation Statue Of User
-            sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-            sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
-            sqlConnection.Open();   // Open connection
-            
-            dataReader = sqlCommand.ExecuteReader();    // Execute
-            if (dataReader.Read())  // Records Found
-                if (dataReader["Members_IsActivated"].ToString() == "true")     // User Exist & Is Activated
-                {
-                    Response.Write("Code 1");   // Code 1: 'User exists'
-                    if (recordExists) writeLog(ID, "Login", "Granted");     // User Exists But Not Activated
-                }
-                else
-                {
-                    Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
-                    if (recordExists) writeLog(ID, "Login", "Denied");
-                }
-            else    // Record Not Found
+            /* Check Login Attempts */
+            sqlConnection.Close();  // Close Connection
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT TOP 5 * FROM Logs WHERE Log_AuthenticationType = 'Login' AND Log_StaticIP = @IP ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            dataReader = sqlCommand.ExecuteReader();  // Execute
+
+            bool succeedLogin = false;
+            int failedattemps = 0;
+            while (dataReader.Read())
             {
-                Response.Write("Code 0");   //  Code 0: 'User does not exist'
-                writeLog(ID, "Login", "Denied");
+                // Get Request Date & Time
+                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                if (dataReader["Log_AuthenticationResult"].ToString() == "Granted")
+                    succeedLogin = true;
+
+                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - requestedSpan;
+
+                if (differece.TotalMinutes <= 15)
+                    failedattemps++;
+            }
+
+            if (failedattemps == 5 && !succeedLogin)   // 5 Failure Attempts
+            {
+                writeLog("Banned IP", "Ban", "Banned");
+                Response.Write("Code 3");
+            }
+            else
+            {
+                /* Check If Email Exists Or Not */
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);  // Intialize Command
+                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                sqlConnection.Open();
+                dataReader = sqlCommand.ExecuteReader();  // Execute
+
+                bool recordExists = false;
+                string ID = "Unknown";
+
+                if (dataReader.Read())  // If Email Exists, Save ID
+                {
+                    ID = dataReader["Members_ID"].ToString();
+                    recordExists = true;
+                }
+                sqlConnection.Close();  // Close Connection
+
+                /* Get Activation Statue Of User */
+                sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+                sqlConnection.Open();   // Open connection
+
+                dataReader = sqlCommand.ExecuteReader();    // Execute
+                if (dataReader.Read())  // Records Found
+                    if (dataReader["Members_IsActivated"].ToString() == "true")     // User Exist & Is Activated
+                    {
+                        Response.Write("Code 1");   // Code 1: 'User exists'
+                        if (recordExists) writeLog(ID, "Login", "Granted");     // User Exists But Not Activated
+                    }
+                    else
+                    {
+                        Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
+                        if (recordExists) writeLog(ID, "Login", "Denied");
+                    }
+                else    // Record Not Found
+                {
+                    Response.Write("Code 0");   //  Code 0: 'User does not exist'
+                    writeLog(ID, "Login", "Denied");
+                }
             }
         }
 
@@ -181,7 +241,7 @@ namespace Messenger
          */
         protected void signup()
         {
-            // Check If UserName Is Taken
+            /* Check If UserName Is Taken */
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
             sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_UserName = @username", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@username", Request.QueryString["UserName"]));  // Add parameter
@@ -192,6 +252,7 @@ namespace Messenger
                 Response.Write("Code 0");   // Code 0: 'Another user with the same username exists'
             else   // Ussername Does Not Exist
             {
+                /* Check If Email Is Taken */
                 sqlConnection.Close();  // Close Connection
                 sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
                 sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
@@ -202,7 +263,7 @@ namespace Messenger
                     Response.Write("Code 2");   // Code 0: 'Another user with the same email exists'
                 else    // Email Does Not Exist
                 {
-                    // Get Max Member_ID
+                    /* Get Max Member_ID */
                     sqlConnection.Close();  // Close Connection
                     sqlCommand = new SqlCommand("SELECT MAX(Members_ID) AS Members_ID FROM Members", sqlConnection);    // Initialize 
                     sqlConnection.Open();   // Open Connection
@@ -215,9 +276,7 @@ namespace Messenger
 
                     sendActivationMail(Request.QueryString["Email"], activationCode); // Send Activation Email
 
-                    /***
-                     * Insert Data Into Databse
-                     */
+                    /* Insert Data Into Databse */
                     sqlConnection.Close();  // Close Connection
                     sqlCommand = new SqlCommand("INSERT INTO Members (Members_FullName, Members_UserName, Members_Email, Members_Password, Members_ActivationCode, Members_IsActivated) VALUES (@fullname, @username, @email, @password, @activationCode, 'false')", sqlConnection);    // Initialize command
                     sqlCommand.Parameters.Add(new SqlParameter("@fullname", Request.QueryString["FullName"]));  // Add parameter
@@ -249,40 +308,74 @@ namespace Messenger
         }
 
         /***
-         * Activate
+         * Activate Account
          */
         protected void activate()
         {
+            int dateStatus;
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("SELECT Members_IsActivated, Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
+            sqlCommand = new SqlCommand("SELECT * FROM Logs WHERE Logs.Log_AuthenticationType = 'Sign Up' AND Logs.Log_MemberID = (SELECT Members.Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode) ORDER BY Log_DateTime ASC", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
             sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
             sqlConnection.Open();   // Open Connection
             SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
-            
-            if (dataReader.Read())
-                if (dataReader["Members_IsActivated"].ToString() == "false")    // Not Activated
-                {
-                    string MemberID = dataReader["Members_ID"].ToString();  // Get Account ID
-                    /***
-                     * Activate Account
-                     */
-                    sqlConnection.Close();  // Close Connection
-                    sqlCommand = new SqlCommand("UPDATE Members SET Members_IsActivated = 'true'", sqlConnection);    // Initialize command
-                    sqlConnection.Open();   // Open Connection
-                    sqlCommand.ExecuteNonQuery();
 
-                    // Write Activation Log
-                    writeLog(MemberID, "Activation", "Activated");
+            if (dataReader.Read())  // Request Exists
+            {
+                // Get Requset Date & Time
+                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
 
-                    Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Yey! Your account has been activated successfully! You may login now...</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Login</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
-                }
-                else   // Already Activated
-                    Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Account has already been activated. You may login now...</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Login</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
-            else   // No Records Found
-                Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Link not found (Err 404) - Probably expired. Request new link from Here:</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Request New Link</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
+                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - requestedSpan;
 
-            sqlConnection.Close();
+                if (differece.TotalDays >= 1)
+                    dateStatus = 2;  // Link Is Expired
+                else
+                    dateStatus = 1;   // All Good, Not Expired Yet
+            }
+            else
+                dateStatus = 0;   // No Requested Recovery Emails -404
+
+            if (dateStatus == 1)
+            {
+                sqlConnection.Close();
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("SELECT Members_IsActivated, Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                dataReader = sqlCommand.ExecuteReader();  // Execute
+
+                if (dataReader.Read())
+                    if (dataReader["Members_IsActivated"].ToString() == "false")    // Not Activated
+                    {
+                        string MemberID = dataReader["Members_ID"].ToString();  // Get Account ID
+                                                                                /***
+                                                                                 * Activate Account
+                                                                                 */
+                        sqlConnection.Close();  // Close Connection
+                        sqlCommand = new SqlCommand("UPDATE Members SET Members_IsActivated = 'true'", sqlConnection);    // Initialize command
+                        sqlConnection.Open();   // Open Connection
+                        sqlCommand.ExecuteNonQuery();
+
+                        // Write Activation Log
+                        writeLog(MemberID, "Activation", "Activated");
+
+                        Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Yey! Your account has been activated successfully! You may login now...</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Login</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
+                    }
+                    else   // Already Activated
+                        Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Account has already been activated. You may login now...</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Login</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
+                else   // No Records Found
+                    Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Link not found (Err 404). Request one from Here:</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Request New Link</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
+
+                sqlConnection.Close();
+            }
+            else if (dateStatus == 2) // Link Expired
+                Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">You are 24 hours late, Link has been expired. Want to request a new one?</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Request New Link</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
+            else   // Link Not Found
+                Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Activation Section</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div style=\"background-color: white; text-align: center; padding: 20px;\"><span style=\"font-weight: bold\">Link not found (Err 404) - Probably expired. Request one from Here:</span><a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Request New Link</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div</body></html>");
         }
 
         /***
@@ -290,17 +383,17 @@ namespace Messenger
          */
         protected void resendActivation()
         {
-            sqlConnection = new SqlConnection(connectionString);
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
             sqlCommand = new SqlCommand("SELECT Members_ActivationCode FROM Members WHERE Members_Email = @email", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
             sqlConnection.Open();   // Open Connection
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
 
-            if (dataReader.Read())
+            if (dataReader.Read())  // User Info Is Correct
             {
                 try
                 {
-                    sendActivationMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());
+                    sendActivationMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());  // Send Email
                 }
                 catch (Exception) { }
                 Response.Write("Code 1");
@@ -310,7 +403,7 @@ namespace Messenger
         }
 
         /***
-         * Recover Password
+         * Recover Password - Does Not Alert User If The Email Is Correct Or Not
          */
         protected void recoverPassword()
         {
@@ -321,56 +414,125 @@ namespace Messenger
             sqlConnection.Open();   // Open Connection
             SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
 
-            if (dataReader.Read())  // Record Found
+            if (dataReader.Read())  // Record Exists
             {
                 try
                 {
                     sendRecoveryMail(Request.QueryString["Email"], dataReader["Members_ActivationCode"].ToString());   // Send Recovery
                     writeLog(dataReader["Members_ID"].ToString(), "Password Recovery", "Requested");
                 }
-                catch (Exception) { Response.Write("Code 0"); }                
+                catch (Exception) { Response.Write("Code 0"); }
             }
             Response.Write("Code 1");   // Record Not Found
         }
 
         /***
-         * Request Password Recovery
+         * Request Password Recovery - Email Redirect Page
          */
         protected void redirectToRecoveryPage()
         {
-            sqlConnection = new SqlConnection(connectionString);
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
             sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
             sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
             sqlConnection.Open();   // Open Connection
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
 
-            if (dataReader.Read())
-                Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Reset Password</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><script src=\"assets/js/main.js\"></script></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div id=\"content\" style=\"background-color: white; text-align: center; padding: 20px\"><input id=\"identifier\" name=\"identifier\" type=\"hidden\" value=\"login\" /><h3 class=\"legend\" style=\"font-weight: bold\">~ Reset Password ~</h3><div id=\"alertBox\"></div><input id=\"email\" name=\"email\" type=\"hidden\" value=\"" + Request.QueryString["Email"] + "\" /><input id=\"code\" name=\"code\" type=\"hidden\" value=\"" + Request.QueryString["ActivationCode"] + "\" /><div class=\"input\"><span class=\"fa fa-key\" aria-hidden=\"true\"></span><input type=\"password\" placeholder=\"New Password\" name=\"pass\" id=\"pass\" required=\"required\" maxlength=\"50\" /><i class=\"fa fa-eye\" aria-hidden=\"true\" title=\"Show/Hide Password\" onclick=\"this.classList.toggle('fa-eye-slash'); changePassVisual()\"></i></div><div class=\"input\"><span class=\"fa fa-key\" aria-hidden=\"true\"></span><input type=\"password\" placeholder=\"Confirm New Password\" name=\"confirm\" id=\"confirm\" required=\"required\" maxlength=\"50\" /></div><button type=\"submit\" class=\"btn submit\" onclick=\"resetPassword()\">Reset</button><a href=\"http://messenger.keivanipchihagh.ir/\" class=\"bottom-text-w3ls\" style=\"margin-top: 22px; cursor: pointer\">Remember Your Password?</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div></body></html>");
-            else
+            if (dataReader.Read())  // Request Exists
+                Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Reset Password</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><script src=\"assets/js/main.js\"></script></head><body onload=\"checkPasswordRecoveryExpireDate()\"><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div id=\"content\" style=\"background-color: white; text-align: center; padding: 20px\"><input id=\"identifier\" name=\"identifier\" type=\"hidden\" value=\"login\" /><h3 class=\"legend\" style=\"font-weight: bold\">~ Reset Password ~</h3><div id=\"alertBox\"></div><input id=\"email\" name=\"email\" type=\"hidden\" value=\"" + Request.QueryString["Email"] + "\" /><input id=\"code\" name=\"code\" type=\"hidden\" value=\"" + Request.QueryString["ActivationCode"] + "\" /><div class=\"input\"><span class=\"fa fa-key\" aria-hidden=\"true\"></span><input type=\"password\" placeholder=\"New Password\" name=\"pass\" id=\"pass\" required=\"required\" maxlength=\"50\" /><i class=\"fa fa-eye\" aria-hidden=\"true\" title=\"Show/Hide Password\" onclick=\"this.classList.toggle('fa-eye-slash'); changePassVisual()\"></i></div><div class=\"input\"><span class=\"fa fa-key\" aria-hidden=\"true\"></span><input type=\"password\" placeholder=\"Confirm New Password\" name=\"confirm\" id=\"confirm\" required=\"required\" maxlength=\"50\" /></div><button type=\"submit\" class=\"btn submit\" onclick=\"resetPassword()\">Reset</button><a href=\"http://messenger.keivanipchihagh.ir/\" class=\"bottom-text-w3ls\" style=\"margin-top: 22px; cursor: pointer\">Remember Your Password?</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div></body></html>");
+            else      // Request Does Not Exist
                 Response.Write("<!--Author: Keivan Ipchi Hagh | Author URL: http://keivanipchihagh.ir/ --><!DOCTYPE HTML><html lang=\"en\"><head><title>Messenger | Reset Password</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><meta charset=\"UTF-8\" /><link href=\"assets/img/favicon.png\" rel=\"icon\"><link rel=\"stylesheet\" href=\"css/main.css\" type=\"text/css\" media=\"all\" /><link rel=\"stylesheet\" href=\"css/style.css\" type=\"text/css\" media=\"all\" /><link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"><script src=\"assets/js/main.js\"></script></head><body><div class=\"main-bg container-login100\" style=\"padding-bottom: 0px\"><div class=\"sub-main-w3 wrap-login100\"><div style=\"width: 100%; padding: 1.5em\"><h1 style=\"padding: 0px\"><img src=\"assets/img/favicon.png\" style=\"width: 60px; height: 60px; vertical-align: middle; margin: 10px\" /><span>Messenger</span></h1></div><div id=\"content\" style=\"background-color: white; text-align: center; padding: 20px\"><h3 class=\"legend\" style=\"font-weight: bold\">~ Reset Password ~</h3>This link contains Invalid signeratures. Session has been terminated due to EA violations; Your link might be expired. Please request a new link form:<a href=\"http://messenger.keivanipchihagh.ir/\" style=\"display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px\">Request New Link</a></div></div><footer style=\"position: fixed; bottom: 0;\"><div class=\"copyright\"><h2>&copy; 2020 Messenger. All rights reserved | Design by<a href=\"http://keivanipchihagh.ir/\" target=\"_blank\" style=\"text-decoration: underline\">Keivan Ipchi Hagh</a></h2></div></footer></div></body></html>");
         }
-        
+
+        /***
+         * Checks Whether 24 Hours Have Passed Since Password Recovery Request
+         */
+        protected void checkReocveryPasswordExpiredDate()
+        {
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT * FROM Logs WHERE Logs.Log_AuthenticationType = 'Password Recovery' AND Logs.Log_AuthenticationResult = 'Requested' AND Logs.Log_MemberID = (SELECT Members.Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode) ORDER BY Log_DateTime ASC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+
+            if (dataReader.Read())  // Requst Exists
+            {
+                // Get Request Date & Time
+                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - requestedSpan;
+
+                if (differece.TotalDays >= 1)
+                    Response.Write("Code 2");   // Link Is Expired
+                else
+                    Response.Write("Code 1");   // All Good, Not Expired Yet
+            }
+            else
+                Response.Write("Code 0");   // No Requested Recovery Emails - 404
+        }
+
+        /***
+         * Checks Whether 24 Hours Have Passed Since Sign Up
+         */
+        protected bool checkActivationEmailExpiredDate()
+        {
+            /* Get Sign Up Information */
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT * FROM Logs WHERE Logs.Log_AuthenticationType = 'Sign Up' AND Logs.Log_MemberID = (SELECT Members.Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode) ORDER BY Log_DateTime ASC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+
+            if (dataReader.Read())  // Request Exists
+            {
+                // Get Date & Time
+                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - requestedSpan;
+
+                if (differece.TotalDays >= 1)   // More Than 24 Hours Have Passed
+                {
+                    Response.Write("Code 2");
+                    return false;  // Link Is Expired
+                }
+                else
+                    return true;   // All Good, Not Expired Ye
+            }
+            else    // Request Does Not Exists
+            {
+                Response.Write("Code 0");
+                return false;   // No Requested Recovery Emails -404
+            }
+        }
+
         /***
          * Reset Password
          */
         protected void resetPassword()
         {
+            /* Write Log */
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
             sqlCommand = new SqlCommand("SELECT * FROM Logs WHERE Logs.Log_AuthenticationType = 'Password Recovery' AND Logs.Log_AuthenticationResult = 'Requested' AND Logs.Log_MemberID = (SELECT Members.Members_ID FROM Members WHERE Members_Email = @email AND Members_ActivationCode = @activationCode)", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
             sqlCommand.Parameters.Add(new SqlParameter("@activationCode", Request.QueryString["ActivationCode"]));  // Add parameter
             sqlConnection.Open();   // Open Connection
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
 
-            if (dataReader.Read())
+            if (dataReader.Read())  // Request Exists
                 writeLog(dataReader["Log_MemberID"].ToString(), "Password Recovery", "Recovered");
-            else
+            else    // Request Does Not Exist
                 writeLog(dataReader["Log_MemberID"].ToString(), "Password Recovery", "Denied");
-            sqlConnection.Close();
 
-
-            // Update The Table With The New Password
+            /* Update The Password */
+            sqlConnection.Close();  // Close Connection
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
             sqlCommand = new SqlCommand("UPDATE Members SET Members_Password = @password WHERE Members_Email = @email AND Members_ActivationCode = @activationCode", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
