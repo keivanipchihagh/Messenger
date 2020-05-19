@@ -10,11 +10,13 @@
    - **Add AJAX functionality to pages** - 100% Completed
    - **Add dynamic error handling** - 100% Completed
    - **Security update patch 1 (Client Side)** - 100% Completed
-   - **Security update patch 2 (Server Side - Live Hashing Encryption)** - 40% Completed
+   - **Security update patch 2 (Server Side - Live Hashing Encryption)** - 100% Completed
    - **Code wrap patch 1** - 100% Completed
-   - **Code wrap patch 2** - 90% Completed
+   - **Code wrap patch 2** - 100% Completed
    - **Final Test pathc 1** - 100% Completed
+   - **Changed Interface** - 100% Completed
    - **Final Test pathc 2** - Not Started
+<br /><br />***Phase 1, has been launched and is operational on [Messenger Website](http://messenger.keivanipchihagh.ir/)***
 
 1. Phase 2 (Messenger)
    - **Design 'home.aspx' & Add linking functionality** - 40% Completed
