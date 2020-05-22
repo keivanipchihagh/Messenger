@@ -70,6 +70,7 @@
     <Content Include="Default.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Home.aspx" />
+    <Content Include="home.html" />
     <Content Include="responder.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>

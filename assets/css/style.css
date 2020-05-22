@@ -13,8 +13,8 @@
 }
 
 body {
-  font-family: "Open Sans", sans-serif;
-  color: #272829;
+    font-family: "Raleway", sans-serif;
+    color: #272829;
 }
 
 a {
@@ -35,15 +35,17 @@ h1, h2, h3, h4, h5, h6 {
 --------------------------------------------------------------*/
 #header {
   position: fixed;
+  border-right: 1px solid black;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 350px;
+  width: 300px;
   transition: all ease-in-out 0.5s;
+  color: black;
   z-index: 9997;
   transition: all 0.5s;
   padding: 0 15px;
-  background: #040b14;
+  background: rgb(245, 249, 250);
   overflow-y: auto;
 }
 
@@ -72,8 +74,8 @@ h1, h2, h3, h4, h5, h6 {
 #header .profile .social-links a {
   font-size: 18px;
   display: inline-block;
-  background: #212431;
-  color: #fff;
+  background: white;
+  color: black;
   line-height: 1;
   padding: 8px 0;
   margin-right: 4px;
@@ -91,12 +93,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #main {
-  margin-left: 350px;
+  margin-left: 300px;
 }
 
 @media (max-width: 1199px) {
   #header {
-    left: -350px;
+    left: -300px;
   }
   #main {
     margin-left: 0;
@@ -183,11 +185,11 @@ h1, h2, h3, h4, h5, h6 {
 # Main
 --------------------------------------------------------------*/
 .navMenu {
-    border: 1px dashed ghostwhite;
+    border: 1.5px dashed black;
 }
 
     .navMenu:hover {
-        box-shadow: 0px 0px 10px 2px #149ddd;
+        box-shadow: 0px 0px 10px white inset;
     }
 
 .message {
@@ -196,16 +198,16 @@ h1, h2, h3, h4, h5, h6 {
     padding: 5px;
     margin-bottom: 10px;
     cursor: pointer;
+    color: black;
+    
 }
 
     .message:hover {
-        box-shadow: 0px 0px 5px 5px #149ddd;
+        transition: 0.5s;
+        box-shadow: 0px 0px 3px 3px #149ddd;
+        border-radius: 7px;
         border: none;
     }
-
-.messageHeader {
-    color: ghostwhite;
-}
 
 .messageImg {
     width: 30px;
@@ -215,8 +217,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .messageBody {
-    color: ghostwhite;
     font-size: x-small;
+    font-weight: bold;
 }
 
 .navbar {
@@ -253,7 +255,7 @@ h1, h2, h3, h4, h5, h6 {
     position: fixed;
     left: 0;
     bottom: 0;
-    width: 350px;
+    width: 300px;
     z-index: 9999;
     background: #040b14;
 }

@@ -49,14 +49,14 @@
 <body>
 
     <!-- ======= Mobile nav toggle button ======= -->
-    <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
+    <button type="button" class="mobile-nav-toggle d-xl-none"><i style="color: black" class="icofont-navigation-menu"></i></button>
 
     <!-- ======= Header ======= -->
     <header id="header">
         <div class="d-flex flex-column">
             <div class="profile" style="margin-bottom: 30px">
                 <img src="assets/img/profile-img.jpg" alt="Profile Img" class="img-fluid rounded-circle">
-                <h1 class="text-light">Alex Smith<i class="fa fa-dot-circle-o" aria-hidden="true" style="color: lawngreen; font-size: medium; padding: 5px"></i></h1>
+                <h1 class="text-dark">Alex Smith<i class="fa fa-dot-circle-o" aria-hidden="true" style="color: lawngreen; font-size: 15px; padding: 5px"></i></h1>
                 <div class="social-links mt-3 text-center">
                     <a class="navMenu" href="#" title="Settings"><i class="fa fa-cog" aria-hidden="true"></i></a>
                     <a class="navMenu" href="#" title="My Profile"><i class="fa fa-user" aria-hidden="true"></i></a>
@@ -105,7 +105,7 @@
                     <div class="copyright" style="font-size: small">
                         &copy; Copyright <strong><span>Keivan Ipchi Hagh</span></strong>
                     </div>
-                    <div class="credits" style="font-size: small">
+                    <div class="credits" style="font-size: xx-small">
                         <!-- Licensing information: https://bootstrapmade.com/license/ -->
                         Designed by <a href="https://bootstrapmade.com/" target="_blank">BootstrapMade</a>
                     </div>
@@ -119,18 +119,11 @@
     <!-- ======= Main ======= -->
     <main id="main">
 
-        <!-- A grey horizontal navbar that becomes vertical on small screens -->
-        <nav class="navbar navbar-expand-sm sticky-top navbar-right">
-            <div>
-                <img class="navImg" src="assets/img/favicon.png" />
-                <h2 style="color: #149ddd; float: left">Messenger</h2>
-                <p class="navSlogan">Web-Based Messaging platform</p>
-            </div>
-        </nav>
+        <div id="navBar" style="width: 100%; height: 100px; background-color: rgb(245, 249, 250); border-bottom: 1px solid black; padding: 10px 20px 25px 20px">
+            <h2>Messenger</h2>Web-based messeging platform
+        </div>
 
     </main><!-- End #main -->
-
-    <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
 
     <!-- Vendor JS Files -->
     <script src="assets/vendor/jquery/jquery.min.js"></script>
