@@ -41,6 +41,15 @@
         }
     });
 
+    // Contact Item Hover Handler
+    $(document).ready(function () {
+
+        $(".contact").hover(function () {
+            $(".contacts-item").toggleClass("contacts-active");  //Toggle the active class to the area is hovered            
+        });
+
+    });
+
     $(document).on('click', '.mobile-nav-toggle', function (e) {
         $('body').toggleClass('mobile-nav-active');
         $('.mobile-nav-toggle i').toggleClass('icofont-navigation-menu icofont-close');
@@ -357,6 +366,25 @@ function getMD5Hash(value) {
     return MD5(value);
 }
 
+/* Show Chat */
+function getChat(self) {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=showChat&FriendUsername=' + self.id + "&SelfUsername=" + document.getElementById('user_username').value, true);
+
+    request.send(); // Send request to server
+
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200)
+            document.getElementById('chat').innerHTML = request.responseText;
+        else
+            success = false;
+    };
+
+    if (success === false)
+        alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+}
+
 /* Set Article */
 function setArticle(articleID) {
     switch (articleID) {
@@ -410,6 +438,22 @@ function checkActivationEmailExpireDate() {
         triggerAlert('error', 'Oops! Something Weird Went Wrong! Might Be Your Connection', 5000);
 }
 
-/* Disable Back & Forward Button */
-setTimeout("preventBack()", 0);
-window.onunload = function () { null; };
+/* Gets recent logs of the user signed in */
+function fetchLogs() {
+    
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=fetchLogs&ID=' + document.getElementById('user_ID').value, true);
+
+    request.send(); // Send request to server
+
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200)
+            document.getElementById('logsDataset').innerHTML = request.responseText;
+        else
+            success = false;
+    };
+
+    if (success === false)
+        document.getElementById('logsDataset').innerHTML = "Failed to load your logs";
+}

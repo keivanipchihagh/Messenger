@@ -10,7 +10,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "xxxxxxxxxxxxxxxxxxxx";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
@@ -42,6 +42,9 @@ namespace Messenger
                     case "redirectToRecoveryPage": redirectToRecoveryPage(); break; // Load & Setup The Recovery Password Page
                     case "resetPassword": resetPassword(); break;   // Update The Password From The Reset Email
                     case "checkReocveryPasswordExpiredDate": checkReocveryPasswordExpiredDate(); break;     // Checks Wether Link Has Been Expired Or Not
+
+                    case "fetchLogs": fetchLogs(); break;    // Fetches most recent logs for the user signed in
+                    case "showChat": getChat(); break;     // Loads the requested chat
 
                 }
             }
@@ -544,6 +547,46 @@ namespace Messenger
                 Response.Write("Code 1");   // Success
             else
                 Response.Write("Code 0");   // Failed
+        }
+
+        /***
+         * Get Chat
+         */
+         protected void getChat()
+        {
+
+        }
+
+        /***
+         * Fetch Logs
+         */
+        protected void fetchLogs()
+        {
+            /* Write Log */
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT TOP 15 * FROM Logs WHERE Log_MemberID = @ID ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@ID", Request.QueryString["ID"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+
+            string content = "";
+            while (dataReader.Read())
+            {
+                content += "<tr><td>" + dataReader["Log_AuthenticationType"] + "</td>";
+                switch(dataReader["Log_AuthenticationResult"])
+                {
+                    case "Created": content += "<td style=\"color: blue\">" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
+                    case "Activated":
+                    case "Recovered":
+                    case "Granted": content += "<td style=\"color: green\">" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
+                    case "Denied": content += "<td style=\"color: red\">" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
+                    case "Banned": content += "<td style=\"color: red; font-weight: bold\">" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
+                    default: content += "<td>" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
+                }
+                content += "<td>" + dataReader["Log_DateTime"] + "</td><td>" + dataReader["Log_StaticIP"] + "</td><td>" + dataReader["log_AuthernticationID"] + "</td></tr>";
+            }
+
+            Response.Write("<h2 style=\"margin: 0px\">Most Recent Logs</h2><table><tr><th>Authentication</th><th>Result</th><th>Date & Time</th><th>IP Address</th><th>Trace</th></tr>" + content + " </table>");
         }
 
         /***
