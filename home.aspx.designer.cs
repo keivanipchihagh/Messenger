@@ -13,31 +13,22 @@ namespace Messenger {
     public partial class Home {
         
         /// <summary>
-        /// fullname control.
+        /// fullnameBox control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl fullname;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl fullnameBox;
         
         /// <summary>
-        /// username control.
+        /// contacts control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl username;
-        
-        /// <summary>
-        /// email control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl email;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl contacts;
         
         /// <summary>
         /// user_ID control.
@@ -74,23 +65,5 @@ namespace Messenger {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputHidden user_email;
-        
-        /// <summary>
-        /// contacts control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl contacts;
-        
-        /// <summary>
-        /// chat control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl chat;
     }
 }

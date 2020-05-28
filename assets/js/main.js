@@ -368,21 +368,48 @@ function getMD5Hash(value) {
 
 /* Show Chat */
 function getChat(self) {
-    var request = new XMLHttpRequest();
-    request.open('GET', 'responder.aspx?Action=showChat&FriendUsername=' + self.id + "&SelfUsername=" + document.getElementById('user_username').value, true);
 
+    CFIM = null;
+    clearInterval(CFIM);
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=getChat&FriendID=' + self.id + "&SelfID=" + document.getElementById('user_ID').value, true);
+    
     request.send(); // Send request to server
 
     var success = true;
     request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200)
+        if (request.readyState === 4 && request.status === 200) {
+            document.getElementById('friend_ID').value = self.id;
             document.getElementById('chat').innerHTML = request.responseText;
-        else
+            startListener();
+        } else
             success = false;
     };
 
     if (success === false)
         alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+}
+
+/* Send Message */
+function sendMessage() {
+    if (document.getElementById('input').value !== '' && document.getElementById('input').value !== null && document.getElementById('friend_ID').value !== '' && document.getElementById('friend_ID').value !== null) {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'responder.aspx?Action=sendMessage&FriendID=' + document.getElementById('friend_ID').value + "&SelfID=" + document.getElementById('user_ID').value + "&Content=" + document.getElementById('input').value, true);
+
+        request.send(); // Send request to server
+
+        var success = true;
+        request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200) {
+                document.getElementById('chat').innerHTML += request.responseText;
+                document.getElementById('input').value = '';
+            } else
+                success = false;
+        };
+
+        if (success === false)
+            alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+    }
 }
 
 /* Set Article */
@@ -456,4 +483,27 @@ function fetchLogs() {
 
     if (success === false)
         document.getElementById('logsDataset').innerHTML = "Failed to load your logs";
+}
+
+/* Get new incoming messages */
+var CFIM;
+function startListener() {
+    CFIM = setInterval(function () {
+        console.log("Listening...");
+        var request = new XMLHttpRequest();
+        request.open('GET', 'responder.aspx?Action=checkForIncomingMessages&FriendID=' + document.getElementById('friend_ID').value + "&SelfID=" + document.getElementById('user_ID').value, true);
+
+        request.send(); // Send request to server
+
+        var success = true;
+        request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200)
+                document.getElementById('chat').innerHTML += request.responseText;
+            else
+                success = false;
+        };
+
+        if (success === false)
+            alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+    }, 1000);
 }

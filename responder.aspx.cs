@@ -10,7 +10,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxx";
+        public const string connectionString = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
@@ -44,7 +44,9 @@ namespace Messenger
                     case "checkReocveryPasswordExpiredDate": checkReocveryPasswordExpiredDate(); break;     // Checks Wether Link Has Been Expired Or Not
 
                     case "fetchLogs": fetchLogs(); break;    // Fetches most recent logs for the user signed in
-                    case "showChat": getChat(); break;     // Loads the requested chat
+                    case "getChat": getChat(); break;     // Loads the requested chat
+                    case "sendMessage": sendMessage(); break;   // Sends a message to a friend ID
+                    case "checkForIncomingMessages": getIncomingMessages(); break;  // Get Unread messages
 
                 }
             }
@@ -203,6 +205,34 @@ namespace Messenger
                     writeLog(ID, "Login", "Denied");
                 }
             }
+        }
+
+        /***
+         * Get Unread Messages
+         */
+         protected void getIncomingMessages()
+        {
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT * FROM Messages WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread') ORDER BY Message_DateTime ASC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+
+            string content = "";
+            while (dataReader.Read())
+                content += "<div class=\"chatBox chatBox-left\"><div class=\"chatBox-container-left\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-left\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"] + "</span></div></div></div>";
+
+            // Set Messages as read
+            sqlConnection.Close();
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("UPDATE Messages SET Message_Status = 'read' WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread')", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            sqlCommand.ExecuteNonQuery();  // Receive Results
+
+            Response.Write(content);
         }
 
         /***
@@ -448,6 +478,24 @@ namespace Messenger
         }
 
         /***
+         * Sends a message to a friend ID
+         */
+        protected void sendMessage()
+        {
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("INSERT INTO Messages (Message_SenderID, Message_ReceiverID, Message_Content, Message_DateTime, Message_Status, Message_Trace) VALUES (@selfID, @friendID, @content, @dateTime, 'unread', 'N/A')", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@content", Request.QueryString["Content"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@dateTime", DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff")));  // Add parameter
+
+            sqlConnection.Open();   // Open Connection
+            sqlCommand.ExecuteNonQuery();  // Receive Results
+
+            Response.Write("<div class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + Request.QueryString["Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff") + "</span></div></div></div>");
+        }
+
+        /***
          * Checks Whether 24 Hours Have Passed Since Password Recovery Request
          */
         protected void checkReocveryPasswordExpiredDate()
@@ -552,9 +600,26 @@ namespace Messenger
         /***
          * Get Chat
          */
-         protected void getChat()
+        protected void getChat()
         {
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT * FROM Messages WHERE (Message_SenderID = @selfID AND Message_ReceiverID = @friendID) OR (Message_ReceiverID = @selfID AND Message_SenderID = @friendID) ORDER BY Message_DateTime ASC", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
 
+            string content = "";
+            while (dataReader.Read())
+                if (dataReader["Message_SenderID"].ToString() == Request.QueryString["SelfID"])
+                    content += "<div class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"] + "</span></div></div></div>";
+                else
+                    content += "<div class=\"chatBox chatBox-left\"><div class=\"chatBox-container-left\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-left\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"] + "</span></div></div></div>";
+
+            if (content == "")
+                content = "Don't be shy, start a conversation.";
+
+            Response.Write("<div style=\"width: 100%; height: 50px\"><div style=\"width: 30%; float: left\"><h6 style=\"font-weight: bold; margin: 0px; border-bottom: 1px solid rgb(0, 148, 254)\"><i class=\"fa fa-weixin\" aria-hidden=\"true\" style=\"padding: 10px; color: rgb(0, 148, 254)\"></i>" + getFullName(Request.QueryString["SelfID"]) + " </h6></div><div style=\"width: 30%; text-align: end; float: right\"><h6 style=\"font-weight: bold; margin: 0px; border-bottom: 1px solid rgb(0, 148, 254)\">" + getFullName(Request.QueryString["FriendID"]) + "<i class=\"fa fa-weixin\" aria-hidden=\"true\" style=\"padding: 10px; color: rgb(0, 148, 254)\"></i></h6></div></div>" + content);
         }
 
         /***
@@ -573,7 +638,7 @@ namespace Messenger
             while (dataReader.Read())
             {
                 content += "<tr><td>" + dataReader["Log_AuthenticationType"] + "</td>";
-                switch(dataReader["Log_AuthenticationResult"])
+                switch (dataReader["Log_AuthenticationResult"])
                 {
                     case "Created": content += "<td style=\"color: blue\">" + dataReader["Log_AuthenticationResult"] + "</td>"; break;
                     case "Activated":
@@ -586,7 +651,7 @@ namespace Messenger
                 content += "<td>" + dataReader["Log_DateTime"] + "</td><td>" + dataReader["Log_StaticIP"] + "</td><td>" + dataReader["log_AuthernticationID"] + "</td></tr>";
             }
 
-            Response.Write("<h2 style=\"margin: 0px\">Most Recent Logs</h2><table><tr><th>Authentication</th><th>Result</th><th>Date & Time</th><th>IP Address</th><th>Trace</th></tr>" + content + " </table>");
+            Response.Write("<h2 style=\"margin: 0px; font-weight: bold\"><i class=\"fa fa-line-chart\" style=\"padding-right: 7px\" aria-hidden=\"true\"></i>Recent Activities</h2><table><tr><th>Authentication</th><th>Result</th><th>Date & Time</th><th>IP Address</th><th>Trace</th></tr>" + content + " </table>");
         }
 
         /***
@@ -623,6 +688,23 @@ namespace Messenger
                 sb.Append(hash[i].ToString("X2"));
 
             return sb.ToString();
+        }
+
+        /***
+         * Get FullName Using ID
+         */
+        protected string getFullName(string ID)
+        {
+            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+            sqlCommand = new SqlCommand("SELECT Members_FullName FROM Members WHERE Members_ID = @ID", sqlConnection);    // Initialize command
+            sqlCommand.Parameters.Add(new SqlParameter("@ID", ID));  // Add parameter
+            sqlConnection.Open();   // Open Connection
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+
+            if (dataReader.Read())
+                return dataReader["Members_FullName"].ToString();
+            else
+                return null;
         }
     }
 };

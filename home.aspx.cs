@@ -38,12 +38,9 @@ namespace Messenger
 
                 if (dataReader.Read())
                 {
-                    fullname.InnerText = dataReader["Members_FullName"].ToString();
-                    username.InnerHtml += "<span style=\"font-weight: bold\">@" + dataReader["Members_UserName"].ToString() + "</span>";
-                    email.InnerHtml += "<span style=\"font-weight: bold\">" + dataReader["Members_Email"].ToString() + "</span>";
-
                     user_ID.Value = dataReader["Members_ID"].ToString();
                     user_fullname.Value = dataReader["Members_FullName"].ToString();
+                    fullnameBox.InnerHtml = " Welcome, <i>" + dataReader["Members_FullName"].ToString() + "</i>";
                     user_username.Value = dataReader["Members_UserName"].ToString();
                     user_email.Value = dataReader["Members_Email"].ToString();
 
@@ -64,10 +61,10 @@ namespace Messenger
             sqlCommand = new SqlCommand("SELECT * FROM Friendships INNER JOIN Members ON Friendships.Friendship_FriendID = Members.Members_ID WHERE Friendships.Friendship_ID = @ID", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@ID", user_ID.Value));  // Add parameter
             sqlConnection.Open();   // Open connection
-            
+
             SqlDataReader dataReader = sqlCommand.ExecuteReader();
             while (dataReader.Read())
-                contacts.InnerHtml += "<div class=\"contact\"><div style=\"width: 80%; float: left\"><p style=\"display: inline-block\">" + dataReader["Members_FullName"] + " - @" + dataReader["Members_UserName"] + "</p></div><div style=\"width: 20%; float: left\"><p class=\"contacts-item\"><i id=\"" + dataReader["Members_UserName"] + "\" onclick=\"getChat(this)\" class=\"fa fa-send contacts-open\" aria-hidden=\"true\"></i> &nbsp&nbsp&nbsp <i class=\"fa fa-trash contacts-remove\" aria-hidden\"true\"></i></p></div></div>";
+                contacts.InnerHtml += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>" + dataReader["Members_FullName"] + " - Last Seen: " + dataReader["Members_LastActivity"] + " </a>";
 
             sqlConnection.Close();
         }
