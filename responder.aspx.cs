@@ -10,7 +10,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "xxxxxxxx";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
