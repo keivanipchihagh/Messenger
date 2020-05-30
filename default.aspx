@@ -65,7 +65,7 @@ Author URL: http://keivanipchihagh.ir/
                                     <label for="rememberMe" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input id="rememberMe" name="rememberMe" type="checkbox" style="margin-right: 3px" />Remember Me</label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn submit" onclick="return login()">Login</button>
+                            <button id="loginBtn" type="submit" class="btn submit" onclick="return login()">Login</button>
                             <a class="bottom-text-w3ls" style="margin-top: 22px; cursor: pointer">No Activation Email Yet?</a>
                         </form>
                     </article>
@@ -98,7 +98,7 @@ Author URL: http://keivanipchihagh.ir/
                             <div class="input100 validate-input" style="text-align: center; height: auto; margin-top: 10px; text-align: center; width: 100%">
                                 <label for="termsOfService" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input type="checkbox" name="termsOfService" id="termsOfService" required="required" style="cursor: pointer; margin-right: 5px; font-size: 14px">I agree with <a style="text-decoration: underline; color: #149ddd; font-weight: bold" onclick="document.getElementById('termsOfServiceModel').classList.toggle('hideModel');">Terms Of Services</a></label>
                             </div>
-                            <button type="submit" class="btn submit" style="margin-top: 8.5px" onclick="signup()">Sign Up</button>
+                            <button id="signInBtn" type="submit" class="btn submit" style="margin-top: 8.5px" onclick="signup()">Sign Up</button>
                         </div>--%>
                     </article>
                 </div>
@@ -118,7 +118,7 @@ Author URL: http://keivanipchihagh.ir/
                                 <span class="fa fa-envelope-o" aria-hidden="true"></span>
                                 <input type="email" placeholder="Email Address" name="email" id="email" required="required" maxlength="50" />
                             </div>
-                            <button type="submit" class="btn submit last-btn" style="margin-bottom: 4px" onclick="recoverPassword()">Send Reset Link</button>
+                            <button id="recoverBtn" type="submit" class="btn submit last-btn" style="margin-bottom: 4px" onclick="recoverPassword()">Send Reset Link</button>
                         </div>--%>
                     </article>
                 </div>
@@ -130,14 +130,14 @@ Author URL: http://keivanipchihagh.ir/
         <!-- Terms of Services -->
         <div class="modal-dialog hideModel" id="termsOfServiceModel" style="background-color: white; margin: auto; width: 90%; border-radius: 5px">
             <div style="padding: 20px">
-                <h2 style="font-size: 25px; padding: 10px; font-weight: bold">Website Terms and Conditions of Use</h2>
+                <h2 style="font-size: 25px; padding: 10px; font-weight: bold">Website Privacy Policy & Terms of Use</h2>
                 <hr style="margin: 5px 0px 5px 0px" />
                 <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">1. Terms</h5>
                 <p style="font-size: 15px">By accessing this Website, accessible from <a href="http://messenger.keivanipchihagh.ir/" target="_blank">messenger.keivanipchihagh.ir</a>, you are agreeing to be bound by these Website Terms and Conditions of Use and agree that you are responsible for the agreement with any applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. The materials contained in this Website are protected by copyright and trade mark law.</p>
                 <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">2. Disclaimer</h5>
-                <p style="font-size: 15px">All of the personal informations submitted in this website are well encrypted and proper security measures have been put in action in order maintain users privacy as isolated as possible. However, this website cannot grand 100% security for its users as it\'s not an enterprise project. Proper counter-meassures have been put in effect to create a safe sandbox for users. Security updates will be realeased every month to update to latest technologies and add features to the platform.</p>
+                <p style="font-size: 15px">All of the personal information submitted in this website are well encrypted and proper security measures have been put in action in order maintain users privacy as isolated as possible. However, this website cannot grand 100% security for its users as it's not an enterprise project. Proper counter-measures have been put in effect to create a safe sandbox for users. Security updates will be released every month to update to latest technologies and add features to the platform.</p>
                 <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">3. Limitations</h5>
-                <p style="font-size: 15px">Messenger or its suppliers will not be hold accountable for any damages that will arise with the use or inability to use the materials on Messenger\'s Website, even if Messenger or an authorize representative of this Website has been notified, orally or written, of the possibility of such damage. Some jurisdiction does not allow limitations on implied warranties or limitations of liability for incidental damages, these limitations may not apply to you.</p>
+                <p style="font-size: 15px">Messenger or its suppliers will not be hold accountable for any damages that will arise with the use or inability to use the materials on Messenger's Website, even if Messenger or an authorize representative of this Website has been notified, orally or written, of the possibility of such damage. Some jurisdiction does not allow limitations on implied warranties or limitations of liability for incidental damages, these limitations may not apply to you.</p>
                 <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">4. Revisions and Errata</h5>
                 <p style="font-size: 15px">The materials appearing on Messengers Website may include technical, typographical, or photographic errors. Messenger will not promise that any of the materials in this Website are accurate, complete, or current. Messenger may change the materials contained on its Website at any time without notice. Messenger does not make any commitment to update the materials.</p>
                 <hr style="margin: 5px 0px 5px 0px" />

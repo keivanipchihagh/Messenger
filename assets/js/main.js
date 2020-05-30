@@ -152,7 +152,7 @@ function signup() {
     // All Good, Sign Up User
     if (document.getElementById('identifier').value === 'signup') {
         var request = new XMLHttpRequest();
-
+        document.getElementById('signInBtn').value = "Setting Up Your Account...";
         request.open('GET', 'responder.aspx?Action=' + document.getElementById('identifier').value + "&FullName=" + document.getElementById('fullname').value + "&UserName=" + document.getElementById('username').value + "&Email=" + document.getElementById('email').value + "&Password=" + getMD5Hash(document.getElementById('pass').value), true);
 
         request.send(); // Send request to server
@@ -162,27 +162,33 @@ function signup() {
                 if (request.responseText === 'Code 1') {
                     var email = document.getElementById('email').value;
                     triggerAlert("success", "Confirm The Activation Link Sent To Your Inbox To Complete Your Sign Up.", 10000);
+                    document.getElementById('signInBtn').value = "All Done";
                     document.getElementById('email').value = email;
                 } else if (request.responseText === 'Code 0') {                    
                     triggerAlert('error', 'Username Is Already Taken; Try Another Username', 4000);
+                    document.getElementById('signInBtn').value = "Sign Up";
                     document.getElementById('username').value = '';
                     document.getElementById('pass').value = '';
                     document.getElementById('confirm').value = '';
                 } else if (request.responseText === 'Code 2') {
                     triggerAlert('error', 'Email Address Is Already Assigned; Report Abuse', 4000);
+                    document.getElementById('signInBtn').value = "Sign Up";
                     document.getElementById('email').value = '';
                     document.getElementById('pass').value = '';
                     document.getElementById('confirm').value = '';
                 } else {
                     triggerAlert('error', 'MSS Protocal Failed. Disable Proxy / Check Connection', 5000);
+                    document.getElementById('signInBtn').value = "Sign Up";
                     document.getElementById('pass').value = '';
                     document.getElementById('confirm').value = '';
                 }
             } else
                 success = false;
         };
-        if (success === false)
+        if (success === false) {
             triggerAlert('error', 'Oops! Something Weird Went Wrong! Might Be Your Connection', 5000);
+            document.getElementById('signInBtn').value = "Sign Up";
+        }
     }
 }
 
@@ -196,9 +202,10 @@ function login() {
     }
 
     if (document.getElementById('identifier').value === 'login') {
+        document.getElementById('loginBtn').value = "Loging In...";
         var request = new XMLHttpRequest();
         request.open('GET', 'responder.aspx?Action=' + document.getElementById('identifier').value + '&Email=' + document.getElementById('email').value + '&Password=' + getMD5Hash(document.getElementById('pass').value), true);        
-        
+
         request.send(); // Send request to server
         
         var success = true;
@@ -206,28 +213,35 @@ function login() {
             if (request.readyState === 4 && request.status === 200) {
                 if (request.responseText === 'Code 1') {
                     triggerAlert('success', 'EP Signature Confirmed, Redirecting Your To Your Account...', 4000);
+                    document.getElementById('loginBtn').value = "Logged In";
                     document.getElementById('form').submit();
                 } else if (request.responseText === 'Code 2') {
                     triggerAlert('warning', 'Account Has Not Been Activated Yet. Activate In Order To Proceed', 10000);
+                    document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('pass').value = '';
                 } else if (request.responseText === 'Code 3') {
                     triggerAlert('error', 'Too many Invalid attempts!!! You have been banned for 15 minutes.', 10000);
+                    document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('email').value = '';
                     document.getElementById('pass').value = '';
                 } else if (request.responseText === 'Code 4') {
                     triggerAlert('error', 'You Are Still Prohibited To Access The Website. Please Be Paitient.', 4000);
+                    document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('email').value = '';
                     document.getElementById('pass').value = '';
                 } else {
                     triggerAlert('error', 'Incorrect Email / Password. Try Again', 4000);
+                    document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('pass').value = '';
                 }
             } else
                 success = false;
         };
         
-        if (success === false)
+        if (success === false) {
             triggerAlert('error', 'Oops! Something Weird Went Wrong! Might Be Your Connection', 5000);
+            document.getElementById('loginBtn').value = "Log In";
+        }
     }
 
     return false;
@@ -245,14 +259,19 @@ function recoverPassword() {
         if (request.readyState === 4 && request.status === 200) {
             if (request.responseText === 'Code 1') {
                 triggerAlert('success', 'Your Request Has Been Received And Will Be Processed Shortly.', 4000);
-            } else
+                document.getElementById('recoverBtn').value = "All Done";
+            } else {
                 triggerAlert('error', 'MSS Protocol Failed. Disable Proxy / Check Connection', 5000);
+                document.getElementById('recoverBtn').value = "Send Reset Link";
+            }
         } else
             success = false;
     };
 
-    if (success === false)
+    if (success === false) {
         triggerAlert('error', 'Oops! Something Weird Went Wrong! Might Be Your Connection', 5000);
+        document.getElementById('recoverBtn').value = "Send Reset Link";
+    }
 }
 
 /* Resend Activation Code Rection */
@@ -381,6 +400,11 @@ function getChat(self) {
         if (request.readyState === 4 && request.status === 200) {
             document.getElementById('friend_ID').value = self.id;
             document.getElementById('chat').innerHTML = request.responseText;
+
+            // Scroll to the bottom
+            var objDiv = document.getElementById('chat');
+            objDiv.scrollTop = objDiv.scrollHeight;
+
             startListener();
         } else
             success = false;
@@ -415,9 +439,9 @@ function sendMessage() {
 /* Set Article */
 function setArticle(articleID) {
     switch (articleID) {
-        case 1: document.getElementById('article2').innerHTML = ''; document.getElementById('article3').innerHTML = ''; document.getElementById('article1').innerHTML = '<form id="form" name="form" action="home.aspx" method="post"><input id="identifier" name="identifier" type="hidden" value="login" /><h3 class="legend" style="font-weight: bold">~ Login ~</h3><div id="alertBox"></div><div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="email" placeholder="Email Address" name="email" id="email" required="required" maxlength="50" /></div><div class="input"><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Password" name="pass" id="pass" required="required" maxlength="50" /><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></div><div style="padding: 5px"><div style="float: right"><label for="rememberMe" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input id="rememberMe" name="rememberMe" type="checkbox" style="margin-right: 3px" />Remember Me</label></div></div><button type="submit" class="btn submit" onclick="return login()">Login</button><a class="bottom-text-w3ls" style="margin-top: 22px; cursor: pointer">Account Not Activated Yet?</a></form>'; break;
-        case 2: document.getElementById('article1').innerHTML = ''; document.getElementById('article3').innerHTML = ''; document.getElementById('article2').innerHTML = '<div id="form"><input id="identifier" name="identifier" type="hidden" value="signup" /><h3 class="legend" style="font-weight: bold">~ Sign Up ~</h3><div id="alertBox"></div><div class="input"><span class="fa fa-user-o" aria-hidden="true"></span><input type="text" placeholder="Full Name" name="fullname" id="fullname" autocomplete="off" required="required" maxlength="50" /><span class="fa fa-user-o" aria-hidden="true"></span><input type="text" placeholder="User Name" name="username" id="username" autocomplete="off" required="required" maxlength="30" /></div><div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="text" placeholder="Email Address" name="email" id="email" autocomplete="off" required="required" maxlength="50" /></div><div class="input" style="margin-bottom: 0px"><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Password" name="pass" id="pass" autocomplete="off" required="required" maxlength="50" /><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Confirm Password" name="confirm" id="confirm" autocomplete="off" style="width: 95%" required="required" maxlength="50" /><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></div><div class="input100 validate-input" style="text-align: center; height: auto; margin-top: 10px; text-align: center; width: 100%"><label for="termsOfService" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input type="checkbox" name="termsOfService" id="termsOfService" required="required" style="cursor: pointer; margin-right: 5px; font-size: 14px">I agree with <a style="text-decoration: underline; color: #149ddd; font-weight: bold" onclick="document.getElementById(\'termsOfServiceModel\').classList.toggle(\'hideModel\');">Terms Of Services</a></label></div><button type="submit" class="btn submit" style="margin-top: 8.5px" onclick="signup()">Sign Up</button></div>'; break;
-        case 3: document.getElementById('article1').innerHTML = ''; document.getElementById('article2').innerHTML = ''; document.getElementById('article3').innerHTML = '<div id="form"><input id="identifier" name="identifier" type="hidden" value="recoverPassword" /><h3 class="legend last" style="font-weight: bold">~ Reset Password ~</h3><div id="alertBox"></div><p class="para-style">No worries, Enter your email address below and we\'ll send you an email with instructions <u>if your email is registered</u>.</p> <p class="para-style-2"><strong>Note: </strong> Consider in mind, the email link will expire in 24 hours.</p> <div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="email" placeholder="Email Address" name="email" id="email" required="required" maxlength="50" /></div> <button type="submit" class="btn submit last-btn" style="margin-bottom: 4px" onclick="recoverPassword()">Send Reset Link</button></div>'; break;
+        case 1: document.getElementById('article2').innerHTML = ''; document.getElementById('article3').innerHTML = ''; document.getElementById('article1').innerHTML = '<form id="form" name="form" action="home.aspx" method="post"><input id="identifier" name="identifier" type="hidden" value="login" /><h3 class="legend" style="font-weight: bold">~ Login ~</h3><div id="alertBox"></div><div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="email" placeholder="Email Address" name="email" id="email" required="required" maxlength="50" /></div><div class="input"><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Password" name="pass" id="pass" required="required" maxlength="50" /><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></div><div style="padding: 5px"><div style="float: right"><label for="rememberMe" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input id="rememberMe" name="rememberMe" type="checkbox" style="margin-right: 3px" />Remember Me</label></div></div><button id="loginBtn" type="submit" class="btn submit" onclick="return login()">Login</button><a class="bottom-text-w3ls" style="margin-top: 22px; cursor: pointer">Account Not Activated Yet?</a></form>'; break;
+        case 2: document.getElementById('article1').innerHTML = ''; document.getElementById('article3').innerHTML = ''; document.getElementById('article2').innerHTML = '<div id="form"><input id="identifier" name="identifier" type="hidden" value="signup" /><h3 class="legend" style="font-weight: bold">~ Sign Up ~</h3><div id="alertBox"></div><div class="input"><span class="fa fa-user-o" aria-hidden="true"></span><input type="text" placeholder="Full Name" name="fullname" id="fullname" autocomplete="off" required="required" maxlength="50" /><span class="fa fa-user-o" aria-hidden="true"></span><input type="text" placeholder="User Name" name="username" id="username" autocomplete="off" required="required" maxlength="30" /></div><div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="text" placeholder="Email Address" name="email" id="email" autocomplete="off" required="required" maxlength="50" /></div><div class="input" style="margin-bottom: 0px"><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Password" name="pass" id="pass" autocomplete="off" required="required" maxlength="50" /><span class="fa fa-key" aria-hidden="true"></span><input type="password" placeholder="Confirm Password" name="confirm" id="confirm" autocomplete="off" style="width: 95%" required="required" maxlength="50" /><i class="fa fa-eye" aria-hidden="true" title="Show/Hide Password" onclick="this.classList.toggle(\'fa-eye-slash\'); changePassVisual()"></i></div><div class="input100 validate-input" style="text-align: center; height: auto; margin-top: 10px; text-align: center; width: 100%"><label for="termsOfService" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input type="checkbox" name="termsOfService" id="termsOfService" required="required" style="cursor: pointer; margin-right: 5px; font-size: 14px">I agree with <a style="text-decoration: underline; color: #149ddd; font-weight: bold" onclick="document.getElementById(\'termsOfServiceModel\').classList.toggle(\'hideModel\');">Terms Of Services</a></label></div><button id="signInBtn" type="submit" class="btn submit" style="margin-top: 8.5px" onclick="signup()">Sign Up</button></div>'; break;
+        case 3: document.getElementById('article1').innerHTML = ''; document.getElementById('article2').innerHTML = ''; document.getElementById('article3').innerHTML = '<div id="form"><input id="identifier" name="identifier" type="hidden" value="recoverPassword" /><h3 class="legend last" style="font-weight: bold">~ Reset Password ~</h3><div id="alertBox"></div><p class="para-style">No worries, Enter your email address below and we\'ll send you an email with instructions <u>if your email is registered</u>.</p> <p class="para-style-2"><strong>Note: </strong> Consider in mind, the email link will expire in 24 hours.</p> <div class="input"><span class="fa fa-envelope-o" aria-hidden="true"></span><input type="email" placeholder="Email Address" name="email" id="email" required="required" maxlength="50" /></div> <button id="recoverBtn" type="submit" class="btn submit last-btn" style="margin-bottom: 4px" onclick="recoverPassword()">Send Reset Link</button></div>'; break;
     }
 }
 
@@ -432,7 +456,7 @@ function checkPasswordRecoveryExpireDate() {
     request.onreadystatechange = function () {
         if (request.readyState === 4 && request.status === 200) {
             if (request.responseText === 'Code 2')
-                document.getElementById('content').innerHTML = 'You are 24 hours left, Link is expired. Want to get a new one?<a href="http://messenger.keivanipchihagh.ir/" style="display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px">Request New Link</a>';
+                document.getElementById('content').innerHTML = 'You are 24 hours late, Link is expired. Want to get a new one?<a href="http://messenger.keivanipchihagh.ir/" style="display: block; background-color: #149ddd; padding: 14px 30px; text-align: center; font-weight: bold; color: white; font-size: 15px; margin: 20px 0px 0px 10px">Request New Link</a>';
             else if (request.responseText === 'Code 0')
                 document.getElementById('content').innerHTML = 'Link Not Found - Err 404';
         } else
@@ -504,6 +528,50 @@ function startListener() {
         };
 
         if (success === false)
-            alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+            alert('Something went wrong!');
+    }, 1000);
+}
+
+/* Check Connection Status */
+function checkConnection() {
+    setInterval(function () {
+
+        var startTime = new Date();
+        var request = new XMLHttpRequest();
+        request.open('GET', 'responder.aspx?Action=isConnected', true);
+
+        request.send(); // Send request to server
+
+        var success = true;
+        request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200)
+                if (request.responseText === 'true')
+                    document.getElementById('connectionStatus').style.color = 'lawngreen';
+                else {
+                    document.getElementById('connectionStatus').style.color = 'red';
+                    console.log("Connection Lost.");
+                }
+            else
+                success = false;
+        };
+
+        if (success === false)
+            alert('Something went wrong!');
+
+        var endTime = new Date();
+
+        // get seconds 
+        if (success === true) {
+            var elapsedTime = (endTime - startTime) / 1000;
+            if (elapsedTime < 3)
+                document.getElementById('connectionStatus').style.color = 'lawngreen';
+            else if (elapsedTime < 7)
+                document.getElementById('connectionStatus').style.color = 'yellow';
+            else
+                document.getElementById('connectionStatus').style.color = 'orange';
+        }
+
+        console.log("Elaped: " + elapsedTime);
+
     }, 1000);
 }
