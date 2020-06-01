@@ -1,0 +1,1 @@
+INSERT INTO Friendships (Friendships.Friendship_ID, Friendships.Friendship_FriendID) SELECT 1000, Members.Members_ID FROM Members WHERE Members.Members_ID != 1000

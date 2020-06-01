@@ -571,7 +571,80 @@ function checkConnection() {
                 document.getElementById('connectionStatus').style.color = 'orange';
         }
 
-        console.log("Elaped: " + elapsedTime);
-
     }, 1000);
+}
+
+/* Search And Select Simular Usernames */
+function filterContacts() {
+    var contacts = document.getElementById('contacts').childNodes;
+    
+    for (var i = 1; i < contacts.length; i++) {
+        if (document.getElementById('contactsSearch').value === null || document.getElementById('contactsSearch').value === '')
+            contacts[i].style.display = "block";
+        else if (contacts[i].id !== null || contacts[i].id !== '')
+            if (similarity(contacts[i].innerText.split(" - ")[0], "@" + document.getElementById('contactsSearch').value) < 0.3)
+                contacts[i].style.display = "none";
+            else
+                contacts[i].style.display = "block";
+    }
+}
+
+/* Calculate The Simularity Percentage */
+function similarity(s1, s2) {
+    var longer = s1;
+    var shorter = s2;
+    if (s1.length < s2.length) {
+        longer = s2;
+        shorter = s1;
+    }
+    var longerLength = longer.length;
+    if (longerLength === 0)
+        return 1.0;
+    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
+
+/* Distance Percentage of two strings */
+function editDistance(s1, s2) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+        var lastValue = i;
+        for (var j = 0; j <= s2.length; j++) {
+            if (i === 0)
+                costs[j] = j;
+            else
+                if (j > 0) {
+                    var newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                        newValue = Math.min(Math.min(newValue, lastValue),
+                            costs[j]) + 1;
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+        }
+        if (i > 0)
+            costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+}
+
+/* Load Contacts List */
+function loadContacts() {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=loadContacts&ID=' + document.getElementById('user_ID').value, true);
+
+    request.send(); // Send request to server
+
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200)
+            document.getElementById('contacts').innerHTML = request.responseText;
+        else
+            success = false;
+    };
+
+    if (success === false)
+        alert('Something went wrong while loading contacts list!');
 }

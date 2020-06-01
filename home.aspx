@@ -50,6 +50,9 @@
                 <div class="w3-dropdown-hover nav-item" style="float: right; height: 100%" title="Contacts">
                     <button class="nav-item" style="height: 100%; padding: 0px 24px !important; border: none; cursor: pointer"><i class="fa fa-users"></i></button>
                     <div id="contacts" runat="server" class="w3-dropdown-content w3-card-4 w3-bar-block" style="max-height: 300px; overflow-y: auto">
+                        <div class="w3-bar-item w3-button menuItem" style="min-width: max-content">
+                            <input id="contactsSearch" type="text" style="height: 90%; width: 88%; resize:none" maxlength="50" placeholder="Search Contacts" autocomplete="new-password" oninput="filterContacts()" /><i class="fa fa-refresh" aria-hidden="true" onclick="loadContacts()" style="padding-left: 5%"></i>
+                        </div>
                     </div>
                 </div>
 

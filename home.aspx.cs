@@ -15,13 +15,19 @@ namespace Messenger
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Prevent Caching
+            Response.Buffer = true;
+            Response.CacheControl = "no-cache";
+            Response.AddHeader("pragma", "no-cache");
+            Response.Expires = -1;
+
             sqlConnection = new SqlConnection(connectionString);
 
             if (loadSelf())
             {
                 addFriends(user_ID.Value);
                 loadContacts();
-            } 
+            }
             else
                 Response.Redirect("http://messenger.keivanipchihagh.ir/");
         }
@@ -65,8 +71,9 @@ namespace Messenger
             sqlConnection.Open();   // Open connection
 
             SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            contacts.InnerHtml = "<div class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\"><input id=\"contactsSearch\" type=\"text\" style=\"height: 90%; width: 88%\" maxlength=\"50\" placeholder=\"Search Contacts\" oninput=\"filterContacts()\" /><i class=\"fa fa-refresh\" aria-hidden=\"true\" title=\"Refresh List\" style=\"padding-left: 5%\" onclick=\"loadContacts()\"></i></div>";
             while (dataReader.Read())
-                contacts.InnerHtml += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>" + dataReader["Members_FullName"] + " - Last Seen: " + dataReader["Members_LastActivity"] + " </a>";
+                contacts.InnerHtml += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>@" + dataReader["Members_UserName"] + " - Last Seen: " + dataReader["Members_LastActivity"] + " </a>";
 
             sqlConnection.Close();
         }
