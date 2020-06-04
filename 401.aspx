@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="responder.aspx.cs" Inherits="Messenger.responder" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="401.aspx.cs" Inherits="Messenger._401" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>404 - Not Found</title>
+    <title>401 - Not Authorized</title>
      <!-- Favicons -->
     <link href="assets/img/favicon.png" rel="icon">
     <!-- Google font -->
@@ -119,10 +119,13 @@
     <div id="notfound">
         <div class="notfound">
             <div class="notfound-404">
-                <h1>404</h1>
+                <h1>401</h1>
             </div>
-            <h2>Oops! Page Not Found</h2>
-            <p>The page you are looking for has no contents to display.</p>
+            <h2>Um.... You can't enter without loging in!</h2>
+            <p>You must login, in order to access the page contents</p>
+            <br />
+            <p>Don' have an account? No problem, create one!</p>
+            <a href="http://messenger.keivanipchihagh.ir/">Go To Homepage</a>
         </div>
     </div>
 </body>

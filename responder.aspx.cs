@@ -12,7 +12,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxx";
+        public const string connectionString = "xxxxxxxxxxxxxxxxxx";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
@@ -54,7 +54,7 @@ namespace Messenger
                     case "deleteMessage": deleteMessage(); break;
                 }
             }
-            catch (Exception ex) { Response.Write(ex.Message); }    // Show Error Message
+            catch (Exception) { Response.Redirect("http://messenger.keivanipchihagh.ir/400.aspx"); }    // Show Error Message
             finally { sqlConnection.Close(); /* Close Connection */ }
         }
 
@@ -212,7 +212,7 @@ namespace Messenger
                     }
                 }
             }
-            catch (Exception ex) { Response.Write("Code -1"); }
+            catch (Exception) { Response.Write("Code -1"); }
         }
 
         /***
@@ -230,7 +230,7 @@ namespace Messenger
                 sqlCommand.ExecuteNonQuery();  // Receive Results
 
                 Response.Write("true");
-            } catch(Exception ex) { Response.Write("false"); }
+            } catch (Exception) { Response.Write("false"); }
         }
 
         /***
@@ -262,7 +262,7 @@ namespace Messenger
 
                 Response.Write(content);
             }
-            catch (Exception ex) { Response.Write("Failed to fetch messages"); }
+            catch (Exception) { Response.Write("Failed to fetch messages"); }
         }
 
         /***

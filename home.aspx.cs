@@ -27,14 +27,16 @@ namespace Messenger
             Response.Cache.SetNoStore();
 
             sqlConnection = new SqlConnection(connectionString);
-
-            if (loadSelf())
+            try
             {
-                addFriends(user_ID.Value);
-                loadContacts();
-            }
-            else
-                Response.Redirect("http://messenger.keivanipchihagh.ir/");
+                if (loadSelf())
+                {
+                    addFriends(user_ID.Value);
+                    loadContacts();
+                }
+                else
+                    Response.Redirect("http://messenger.keivanipchihagh.ir/401.aspx");
+            } catch (Exception) { Response.Redirect("http://messenger.keivanipchihagh.ir/401.aspx"); }
         }
 
         protected bool loadSelf()
@@ -111,7 +113,7 @@ namespace Messenger
 
                 contacts.InnerHtml = contents;
             }
-            catch (Exception ex) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not load your contacts list. Please re-login or refresh the page</div>"; }
+            catch (Exception) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not load your contacts list. Please re-login or refresh the page</div>"; }
         }
 
         /***
@@ -168,7 +170,7 @@ namespace Messenger
                     sqlCommand.ExecuteNonQuery();   // Execute
                     sqlConnection.Close();  // Close Connection
                 }
-            } catch (Exception ex) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not update your contacts list. Please re-login</div>"; }
+            } catch (Exception) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not update your contacts list. Please re-login</div>"; }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="responder.aspx.cs" Inherits="Messenger.responder" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="400.aspx.cs" Inherits="Messenger._400" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>404 - Not Found</title>
+    <title>400 - Bad Request</title>
      <!-- Favicons -->
     <link href="assets/img/favicon.png" rel="icon">
     <!-- Google font -->
@@ -119,10 +119,13 @@
     <div id="notfound">
         <div class="notfound">
             <div class="notfound-404">
-                <h1>404</h1>
+                <h1>400</h1>
             </div>
-            <h2>Oops! Page Not Found</h2>
-            <p>The page you are looking for has no contents to display.</p>
+            <h2>Oops! Something weird just went wrong!</h2>
+            <p>Sorry for the inconvenience, <b>Server responded abnormaly</b>; Nothing serious, just re-login and continue your work</p>
+            <br />
+            <p>This won't happen again, pinky swear (:</p>
+            <a href="http://messenger.keivanipchihagh.ir/">Go To Homepage</a>
         </div>
     </div>
 </body>

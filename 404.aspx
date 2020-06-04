@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="responder.aspx.cs" Inherits="Messenger.responder" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="404.aspx.cs" Inherits="Messenger.error" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -121,8 +121,11 @@
             <div class="notfound-404">
                 <h1>404</h1>
             </div>
-            <h2>Oops! Page Not Found</h2>
-            <p>The page you are looking for has no contents to display.</p>
+            <h2>Oops! Something didn't go quite as planned</h2>
+            <p>Sorry for the inconvenience, but the page you are looking for might be <b>under maintenance</b>, <b>does not exist</b> or <b>update in progress</b>.</p>
+            <br />
+            <p>Hang tight, while we get it up and running!</p>
+            <a href="http://messenger.keivanipchihagh.ir/">Go To Homepage</a>
         </div>
     </div>
 </body>
