@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Net;
 using System.Net.Mail;
@@ -11,7 +12,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "xxxxxxxxxxxxxx";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
@@ -50,6 +51,7 @@ namespace Messenger
                     case "checkForIncomingMessages": getIncomingMessages(); break;  // Get Unread messages
                     case "isConnected": isConnected(); break;   // Checks if server is connected or not
                     case "loadContacts": loadContacts(); break;     // Loads the contacts list
+                    case "deleteMessage": deleteMessage(); break;
                 }
             }
             catch (Exception ex) { Response.Write(ex.Message); }    // Show Error Message
@@ -108,105 +110,109 @@ namespace Messenger
          */
         protected void login()
         {
-            /* Check For Bans */
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("SELECT TOP 1 * FROM Logs WHERE Log_StaticIP = @IP AND Log_AuthenticationType = 'Ban' AND Log_AuthenticationResult = 'Banned' ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
-
-            if (dataReader.Read())  // Chech If Ban Exists On The IP
+            try
             {
-                // Get Request Date & Time
-                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
-                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
-
-                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
-                DateTime nowSpan = DateTime.Now;
-                TimeSpan differece = nowSpan - requestedSpan;
-
-                if (differece.TotalMinutes <= 15)   // Still Banned
-                {
-                    Response.Write("Code 4");
-                    return;
-                }
-            }
-
-            /* Check Login Attempts */
-            sqlConnection.Close();  // Close Connection
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("SELECT TOP 5 * FROM Logs WHERE Log_AuthenticationType = 'Login' AND Log_StaticIP = @IP ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-            dataReader = sqlCommand.ExecuteReader();  // Execute
-
-            bool succeedLogin = false;
-            int failedattemps = 0;
-            while (dataReader.Read())
-            {
-                // Get Request Date & Time
-                string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
-                string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
-
-                if (dataReader["Log_AuthenticationResult"].ToString() == "Granted")
-                    succeedLogin = true;
-
-                DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
-                DateTime nowSpan = DateTime.Now;
-                TimeSpan differece = nowSpan - requestedSpan;
-
-                if (differece.TotalMinutes <= 15)
-                    failedattemps++;
-            }
-
-            if (failedattemps == 5 && !succeedLogin)   // 5 Failure Attempts
-            {
-                writeLog("Banned IP", "Ban", "Banned");
-                Response.Write("Code 3");
-            }
-            else
-            {
-                /* Check If Email Exists Or Not */
+                /* Check For Bans */
                 sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-                sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);  // Intialize Command
-                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                sqlConnection.Open();
+                sqlCommand = new SqlCommand("SELECT TOP 1 * FROM Logs WHERE Log_StaticIP = @IP AND Log_AuthenticationType = 'Ban' AND Log_AuthenticationResult = 'Banned' ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
+
+                if (dataReader.Read())  // Chech If Ban Exists On The IP
+                {
+                    // Get Request Date & Time
+                    string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                    string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                    DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                    DateTime nowSpan = DateTime.Now;
+                    TimeSpan differece = nowSpan - requestedSpan;
+
+                    if (differece.TotalMinutes <= 15)   // Still Banned
+                    {
+                        Response.Write("Code 4");
+                        return;
+                    }
+                }
+
+                /* Check Login Attempts */
+                sqlConnection.Close();  // Close Connection
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("SELECT TOP 5 * FROM Logs WHERE Log_AuthenticationType = 'Login' AND Log_StaticIP = @IP ORDER BY Log_DateTime DESC", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@IP", GetIPAddress()));  // Add parameter
+                sqlConnection.Open();   // Open Connection
                 dataReader = sqlCommand.ExecuteReader();  // Execute
 
-                bool recordExists = false;
-                string ID = "Unknown";
-
-                if (dataReader.Read())  // If Email Exists, Save ID
+                bool succeedLogin = false;
+                int failedattemps = 0;
+                while (dataReader.Read())
                 {
-                    ID = dataReader["Members_ID"].ToString();
-                    recordExists = true;
+                    // Get Request Date & Time
+                    string date = dataReader["Log_DateTime"].ToString().Split('-')[0];
+                    string time = dataReader["Log_DateTime"].ToString().Split('-')[1];
+
+                    if (dataReader["Log_AuthenticationResult"].ToString() == "Granted")
+                        succeedLogin = true;
+
+                    DateTime requestedSpan = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                    DateTime nowSpan = DateTime.Now;
+                    TimeSpan differece = nowSpan - requestedSpan;
+
+                    if (differece.TotalMinutes <= 15)
+                        failedattemps++;
                 }
-                sqlConnection.Close();  // Close Connection
 
-                /* Get Activation Statue Of User */
-                sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
-                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
-                sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
-                sqlConnection.Open();   // Open connection
-
-                dataReader = sqlCommand.ExecuteReader();    // Execute
-                if (dataReader.Read())  // Records Found
-                    if (dataReader["Members_IsActivated"].ToString() == "true")     // User Exist & Is Activated
-                    {
-                        Response.Write("Code 1");   // Code 1: 'User exists'
-                        if (recordExists) writeLog(ID, "Login", "Granted");     // User Exists But Not Activated
-                    }
-                    else
-                    {
-                        Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
-                        if (recordExists) writeLog(ID, "Login", "Denied");
-                    }
-                else    // Record Not Found
+                if (failedattemps == 5 && !succeedLogin)   // 5 Failure Attempts
                 {
-                    Response.Write("Code 0");   //  Code 0: 'User does not exist'
-                    writeLog(ID, "Login", "Denied");
+                    writeLog("Banned IP", "Ban", "Banned");
+                    Response.Write("Code 3");   // Ban
+                }
+                else
+                {
+                    /* Check If Email Exists Or Not */
+                    sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                    sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_Email = @email", sqlConnection);  // Intialize Command
+                    sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                    sqlConnection.Open();
+                    dataReader = sqlCommand.ExecuteReader();  // Execute
+
+                    bool recordExists = false;
+                    string ID = "Unknown";
+
+                    if (dataReader.Read())  // If Email Exists, Save ID
+                    {
+                        ID = dataReader["Members_ID"].ToString();
+                        recordExists = true;
+                    }
+                    sqlConnection.Close();  // Close Connection
+
+                    /* Get Activation Statue Of User */
+                    sqlCommand = new SqlCommand("SELECT Members_IsActivated FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
+                    sqlCommand.Parameters.Add(new SqlParameter("@email", Request.QueryString["Email"]));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@password", Request.QueryString["Password"]));  // Add parameter
+                    sqlConnection.Open();   // Open connection
+
+                    dataReader = sqlCommand.ExecuteReader();    // Execute
+                    if (dataReader.Read())  // Records Found
+                        if (dataReader["Members_IsActivated"].ToString() == "true")     // User Exist & Is Activated
+                        {
+                            Response.Write("Code 1");   // Code 1: 'User exists'
+                            if (recordExists) writeLog(ID, "Login", "Granted");     // User Exists But Not Activated
+                        }
+                        else
+                        {
+                            Response.Write("Code 2");   // Code 1: 'Account has not been activated yet'
+                            if (recordExists) writeLog(ID, "Login", "Denied");
+                        }
+                    else    // Record Not Found
+                    {
+                        Response.Write("Code 0");   //  Code 0: 'User does not exist'
+                        writeLog(ID, "Login", "Denied");
+                    }
                 }
             }
+            catch (Exception ex) { Response.Write("Code -1"); }
         }
 
         /***
@@ -214,7 +220,17 @@ namespace Messenger
          */
         protected void isConnected()
         {
-            Response.Write("true");
+            try
+            {
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("UPDATE Members SET Members_LastActivity = @datetime WHERE Members_ID = @ID", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@ID", Request.QueryString["ID"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@datetime", DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff")));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                sqlCommand.ExecuteNonQuery();  // Receive Results
+
+                Response.Write("true");
+            } catch(Exception ex) { Response.Write("false"); }
         }
 
         /***
@@ -222,27 +238,31 @@ namespace Messenger
          */
         protected void getIncomingMessages()
         {
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("SELECT * FROM Messages WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread') ORDER BY Message_DateTime ASC", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
-            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
+            try
+            {
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("SELECT * FROM Messages WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread') ORDER BY Message_DateTime ASC", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
 
-            string content = "";
-            while (dataReader.Read())
-                content += "<div class=\"chatBox chatBox-left\"><div class=\"chatBox-container-left\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-left\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"] + "</span></div></div></div>";
+                string content = "";
+                while (dataReader.Read())
+                    content += "<div class=\"chatBox chatBox-left\"><div class=\"chatBox-container-left\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-left\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"].ToString().Split('-')[1].Substring(0, 9) + "</span></div></div></div>";
 
-            // Set Messages as read
-            sqlConnection.Close();
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("UPDATE Messages SET Message_Status = 'read' WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread')", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
-            sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-            sqlCommand.ExecuteNonQuery();  // Receive Results
+                // Set Messages as read
+                sqlConnection.Close();
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("UPDATE Messages SET Message_Status = 'read' WHERE (Message_ReceiverID = @selfID AND Message_SenderID = @friendID AND Message_Status = 'unread')", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                sqlCommand.ExecuteNonQuery();  // Receive Results
 
-            Response.Write(content);
+                Response.Write(content);
+            }
+            catch (Exception ex) { Response.Write("Failed to fetch messages"); }
         }
 
         /***
@@ -523,17 +543,42 @@ namespace Messenger
          */
         protected void sendMessage()
         {
+            string trace = getMD5Hash(Request.QueryString["SelfID"] + "-" + Request.QueryString["FriendID"] + "-" + DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff"));
             sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("INSERT INTO Messages (Message_SenderID, Message_ReceiverID, Message_Content, Message_DateTime, Message_Status, Message_Trace) VALUES (@selfID, @friendID, @content, @dateTime, 'unread', 'N/A')", sqlConnection);    // Initialize command
+            sqlCommand = new SqlCommand("INSERT INTO Messages (Message_SenderID, Message_ReceiverID, Message_Content, Message_DateTime, Message_Status, Message_Trace) VALUES (@selfID, @friendID, @content, @dateTime, 'unread', @trace)", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@selfID", Request.QueryString["SelfID"]));  // Add parameter
             sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
-            sqlCommand.Parameters.Add(new SqlParameter("@content", Request.QueryString["Content"]));  // Add parameter
-            sqlCommand.Parameters.Add(new SqlParameter("@dateTime", DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff")));  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@content", SqlDbType.NVarChar)).Value = Request.QueryString["Content"];  // Add parameter
+            sqlCommand.Parameters.Add(new SqlParameter("@dateTime", DateTime.Now.ToString("yyyy:MM:dd - HH:mm:ss:ff")));  // Add parameter            
+            sqlCommand.Parameters.Add(new SqlParameter("@trace", trace));  // Add parameter            
+
 
             sqlConnection.Open();   // Open Connection
             sqlCommand.ExecuteNonQuery();  // Receive Results
 
-            Response.Write("<div class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + Request.QueryString["Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + DateTime.Now.ToString("HH:mm:ss") + "</span></div></div></div>");
+            Response.Write("<div id=\"chat-" + trace + "\" class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + Request.QueryString["Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + DateTime.Now.ToString("HH:mm:ss") + "</span><div class=\"w3-dropdown-hover\" style=\"padding: 3px 3px 3px 5px; display: inline-block\"><i class=\"fa fa-ellipsis-v\" aria-hidden=\"true\"></i><div class=\"w3-dropdown-content dropdown-hover-display\" style=\"right: 0px\"><a id=\"" + trace + "\" onclick=\"deleteMessage(this)\" class=\"w3-bar-item dropdown-item-chat\">Delete forever</a></div></div></div></div></div>");
+        }
+
+        /***
+         * Deletes an spesific message
+         */
+        protected void deleteMessage()
+        {
+            try
+            {
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("DELETE FROM Messages WHERE Message_Trace = @trace", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@trace", Request.QueryString["MessageTrace"]));  // Add parameter
+
+                sqlConnection.Open();   // Open Connection
+                int history = sqlCommand.ExecuteNonQuery();  // Receive Results
+
+                if (history == 0)
+                    Response.Write("Code 2");
+                else
+                    Response.Write("Code 1");
+
+            } catch (Exception) { Response.Write("Code 0"); }
         }
 
         /***
@@ -649,18 +694,15 @@ namespace Messenger
             sqlCommand.Parameters.Add(new SqlParameter("@friendID", Request.QueryString["FriendID"]));  // Add parameter
             sqlConnection.Open();   // Open Connection
             SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Receive Results
-
+            
             string content = "";
             while (dataReader.Read())
             {
                 if (dataReader["Message_SenderID"].ToString() == Request.QueryString["SelfID"])
-                    content += "<div class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"].ToString().Split('-')[1].Substring(0, 9) + "</span></div></div></div>";
+                    content += "<div id=\"chat-" + dataReader["Message_Trace"] + "\" class=\"chatBox chatBox-right\"><div class=\"chatBox-container-right\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-right\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"].ToString().Split('-')[1].Substring(0, 9) + "</span><div class=\"w3-dropdown-hover\" style=\"padding: 3px 3px 3px 5px; display: inline-block\"><i class=\"fa fa-ellipsis-v\" aria-hidden=\"true\"></i><div class=\"w3-dropdown-content dropdown-hover-display\" style=\"right: 0px\"><a id=\"" + dataReader["Message_Trace"] + "\" onclick=\"deleteMessage(this)\" class=\"w3-bar-item dropdown-item-chat\">Delete forever</a></div></div></div></div></div>";
                 else
                     content += "<div class=\"chatBox chatBox-left\"><div class=\"chatBox-container-left\"><p class=\"chatBox-content\">" + dataReader["Message_Content"] + "</p><div class=\"chatBox-time-container-left\"><span class=\"chatBox-time\">" + dataReader["Message_DateTime"].ToString().Split('-')[1].Substring(0, 9) + "</span></div></div></div>";
             }
-
-            if (content == "")
-                content = "Don't be shy, start a conversation.";
 
             Response.Write("<div style=\"width: 100%; height: 50px\"><div style=\"width: 30%; float: left\"><h6 style=\"color: white; margin: 0px; border-bottom: 1px solid rgb(0, 148, 254)\"><i class=\"fa fa-weixin\" aria-hidden=\"true\" style=\"padding: 10px; color: rgb(0, 148, 254); font-size: 20px\"></i>" + getFullName(Request.QueryString["FriendID"]) + " </h6></div><div style=\"width: 30%; text-align: end; float: right\"><h6 style=\"color: white; margin: 0px; border-bottom: 1px solid rgb(0, 148, 254); font-size: 20px\">" + getFullName(Request.QueryString["SelfID"]) + "<i class=\"fa fa-weixin\" aria-hidden=\"true\" style=\"padding: 10px; color: rgb(0, 148, 254)\"></i></h6></div></div>" + content);
         }
@@ -759,12 +801,39 @@ namespace Messenger
             sqlConnection = new SqlConnection(connectionString);
             sqlCommand = new SqlCommand("SELECT * FROM Friendships INNER JOIN Members ON Friendships.Friendship_FriendID = Members.Members_ID WHERE Friendships.Friendship_ID = @ID", sqlConnection);    // Initialize command
             sqlCommand.Parameters.Add(new SqlParameter("@ID", Request.QueryString["ID"]));  // Add parameter
-            sqlConnection.Open();   // Open connection
+            sqlConnection.Open();   // Open connection            
 
             SqlDataReader dataReader = sqlCommand.ExecuteReader();
             string contents = "<div class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\"><input id=\"contactsSearch\" type=\"text\" style=\"height: 90%; width: 88%\" maxlength=\"50\" placeholder=\"Search Contacts\" oninput=\"filterContacts()\" /><i class=\"fa fa-refresh\" aria-hidden=\"true\" title=\"Refresh List\" style=\"padding-left: 5%\"></i></div>";
             while (dataReader.Read())
-                contents += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>@" + dataReader["Members_UserName"] + " - Last Seen: " + dataReader["Members_LastActivity"] + " </a>";
+            {
+                // Get Time Difference
+                string date = dataReader["Members_LastActivity"].ToString().Split('-')[0];
+                string time = dataReader["Members_LastActivity"].ToString().Split('-')[1];
+                DateTime lastActivity = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                DateTime nowSpan = DateTime.Now;
+                TimeSpan differece = nowSpan - lastActivity;
+
+                string lastseen = "";
+                if (differece.Seconds < 5 && differece.Minutes == 0 && differece.Hours == 0 && differece.Days == 0)
+                    lastseen = "<span style=\"color: lawngreen; font-weight: bold\">Online</span>";
+                else if (differece.Minutes < 5 && differece.Hours == 0 && differece.Days == 0)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">Recently</span>";
+                else if (differece.Hours <= 1 && differece.Days == 0)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Minutes.ToString() + " Minutes ago</span>";
+                else if (differece.Days < 1)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Hours.ToString() + " hours ago</span>";
+                else if (differece.Days < 7)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Days + " days ago</span>";
+                else if (differece.Days <= 14)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">A weak ago</span>";
+                else if (differece.Days <= 30)
+                    lastseen = "<span style=\"color: gray; font-weight: bold\">A month ago</span>";
+                else
+                    lastseen = "Long time ago";
+
+                contents += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content; font-size: 12px\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>@" + dataReader["Members_UserName"] + " - " + lastseen + " </a>";
+            }
 
             Response.Write(contents);
         }

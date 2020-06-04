@@ -104,7 +104,7 @@
             scrollTop: 0
         }, 1500, 'easeInOutExpo');
         return false;
-    });
+    });    
 })(jQuery);
 
 /* Sign Up Section */
@@ -212,11 +212,11 @@ function login() {
         request.onreadystatechange = function () {            
             if (request.readyState === 4 && request.status === 200) {
                 if (request.responseText === 'Code 1') {
-                    triggerAlert('success', 'EP Signature Confirmed, Redirecting Your To Your Account...', 4000);
+                    triggerAlert('success', 'EP Signature confirmed, redirecting you to your account...', 4000);
                     document.getElementById('loginBtn').value = "Logged In";
                     document.getElementById('form').submit();
                 } else if (request.responseText === 'Code 2') {
-                    triggerAlert('warning', 'Account Has Not Been Activated Yet. Activate In Order To Proceed', 10000);
+                    triggerAlert('warning', 'Account has not been activated yet. Activate in order to proceed', 10000);
                     document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('pass').value = '';
                 } else if (request.responseText === 'Code 3') {
@@ -225,13 +225,16 @@ function login() {
                     document.getElementById('email').value = '';
                     document.getElementById('pass').value = '';
                 } else if (request.responseText === 'Code 4') {
-                    triggerAlert('error', 'You Are Still Prohibited To Access The Website. Please Be Paitient.', 4000);
+                    triggerAlert('error', 'You rre still prohibited to access the website. please be paitient.', 4000);
                     document.getElementById('loginBtn').value = "Log In";
                     document.getElementById('email').value = '';
                     document.getElementById('pass').value = '';
-                } else {
-                    triggerAlert('error', 'Incorrect Email / Password. Try Again', 4000);
+                } else if (request.responseText === 'Code 0') {
+                    triggerAlert('error', 'Incorrect Email / Password. Try again', 4000);
                     document.getElementById('loginBtn').value = "Log In";
+                    document.getElementById('pass').value = '';
+                } else {
+                    document.getElementById('loginBtn').value = "Authentication failed. Try again in a few moments.";
                     document.getElementById('pass').value = '';
                 }
             } else
@@ -411,7 +414,7 @@ function getChat(self) {
     };
 
     if (success === false)
-        alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+        triggerAlert('error', 'Oops! Something weird went wrong! Could not fetch your chat', 5000);
 }
 
 /* Send Message */
@@ -432,8 +435,30 @@ function sendMessage() {
         };
 
         if (success === false)
-            alert('Oops! Something Weird Went Wrong! Might Be Your Connection');
+            triggerAlert('error', 'Oops! Something weird went wrong! Try again in a few moments.', 3000);
     }
+}
+
+/* Delete Message */
+function deleteMessage(self) {
+    var request = new XMLHttpRequest();
+    request.open('GET', 'responder.aspx?Action=deleteMessage&MessageTrace=' + self.id, true);
+
+    request.send(); // Send request to server
+
+    var success = true;
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            if (request.responseText === 'Code 1')
+                document.getElementById('chat-' + self.id).remove();
+            else if (request.responseText === 'Code 2')
+                triggerAlert('error', 'Oops! Message does not exist anymore. Please refresh the page', 3000);
+        } else
+            success = false;
+    };
+
+    if (success === false)
+        triggerAlert('error', 'Oops! Something weird went wrong! Couldn\'t remove your message', 3000);
 }
 
 /* Set Article */
@@ -528,17 +553,16 @@ function startListener() {
         };
 
         if (success === false)
-            alert('Something went wrong!');
+            triggerAlert('warning', 'Oops! Something weird went wrong! Cannot receive incoming messages.', 3000);
     }, 1000);
 }
 
 /* Check Connection Status */
 function checkConnection() {
     setInterval(function () {
-
         var startTime = new Date();
         var request = new XMLHttpRequest();
-        request.open('GET', 'responder.aspx?Action=isConnected', true);
+        request.open('GET', 'responder.aspx?Action=isConnected&ID=' + document.getElementById('user_ID').value, true);
 
         request.send(); // Send request to server
 
@@ -547,16 +571,16 @@ function checkConnection() {
             if (request.readyState === 4 && request.status === 200)
                 if (request.responseText === 'true')
                     document.getElementById('connectionStatus').style.color = 'lawngreen';
-                else {
+                else if (request.responseText === 'false')
+                    document.getElementById('connectionStatus').style.color = 'yellow';
+                else
                     document.getElementById('connectionStatus').style.color = 'red';
-                    console.log("Connection Lost.");
-                }
             else
                 success = false;
         };
 
         if (success === false)
-            alert('Something went wrong!');
+            triggerAlert('error', 'Oops! Something weird went wrong! Unable to connect to server', 3000);
 
         var endTime = new Date();
 
@@ -571,6 +595,7 @@ function checkConnection() {
                 document.getElementById('connectionStatus').style.color = 'orange';
         }
 
+        loadContacts();   // Reloads Contacts & Shows Their Status
     }, 1000);
 }
 
@@ -646,5 +671,9 @@ function loadContacts() {
     };
 
     if (success === false)
-        alert('Something went wrong while loading contacts list!');
+        triggerAlert('error', 'Oops! Something weird went wrong! Could not load your contacts list.', 3000);
 }
+
+/* Prevent Back Or Forward */
+if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD)
+    window.location.replace("http://messenger.keivanipchihagh.ir/");

@@ -17,7 +17,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 </head>
-<body class="w3" style="background-image: url('assets/img/loginBg.jpg'); background-size: cover" onload="checkConnection()">
+<body class="w3" style="background-image: url('assets/img/loginBg.jpg'); background-size: cover" onload="checkConnection();">
 
     <!-- Page Container -->
     <div class="w3-container w3-content" style="max-width: 1400px">
@@ -28,6 +28,8 @@
                     <img src="assets/img/favicon.png" style="width: 60px; height: 60px; vertical-align: middle; margin: 10px;" /><span>MESSENGER</span></h1>
             </div>
         </div>
+        <!-- Alert Box -->
+        <div id="alertBox" name="alertBox" runat="server"></div>
         <!-- User Control Panel -->
         <div class="w3-row">
             <div class="w3-container" style="height: 50px; width: 80%; background-color: rgba(255, 255, 255, 0.5); margin: auto; margin-top: 10px; padding: 0px">
@@ -35,11 +37,9 @@
                     <h6 id='fullnameBox' runat="server" style="font-weight: bold">Initializing...</h6>
                 </div>
                 <div class="w3-dropdown-hover nav-item" style="float: right; height: 100%; background-color: rgb(220, 220, 220)">
-                    <button class="w3-button w3-padding-large" style="height: 100%; padding: 0px 15px!important"><i class="fa fa-bell"></i><span class="w3-badge w3-right w3-small w3-red" style="padding: 1px 5px 1px 5px !important">3</span></button>
+                    <button class="w3-button w3-padding-large" style="height: 100%"><i class="fa fa-ellipsis-h"></i></button>
                     <div class="w3-dropdown-content w3-card-4 w3-bar-block" style="min-width: max-content">
-                        <a class="w3-bar-item w3-button menuItem" onclick="document.getElementById('privacyPolicy').style.display='block'"><i class="fa fa-certificate" style="padding-right: 10px"></i>Privacy Policy</a>
-                        <a class="w3-bar-item w3-button menuItem" onclick="document.getElementById('versionInfo').style.display='block'"><i class="fa fa-certificate" style="padding-right: 10px"></i>Version 1.2.7</a>
-                        <a class="w3-bar-item w3-button menuItem"><i class="fa fa-certificate" style="padding-right: 10px"></i>Friend Requests</a>
+                        <a class="w3-bar-item w3-button menuItem" onclick="document.getElementById('versionInfo').style.display='block'"><i class="fa fa-barcode" style="padding-right: 10px"></i>Version 1.2.7</a>
                     </div>
                 </div>
 
@@ -98,47 +98,30 @@
         </div>
     </div>
 
-    <div id="privacyPolicy" class="w3-modal">
-        <div class="w3-modal-content">
-            <div class="w3-container">
-                <span onclick="document.getElementById('privacyPolicy').style.display='none'" class="w3-button w3-display-topright">&times;</span>
-            </div>
-            <div class="w3-container" style="padding: 30px">
-                <h2 style="font-size: 25px; padding: 10px; font-weight: bold">Website Privacy Policy & Terms of Use</h2>
-                <hr style="margin: 5px 0px 5px 0px" />
-                <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">1. Terms</h5>
-                <p style="font-size: 15px">By accessing this Website, accessible from <a href="http://messenger.keivanipchihagh.ir/" target="_blank">messenger.keivanipchihagh.ir</a>, you are agreeing to be bound by these Website Terms and Conditions of Use and agree that you are responsible for the agreement with any applicable local laws. If you disagree with any of these terms, you are prohibited from accessing this site. The materials contained in this Website are protected by copyright and trade mark law.</p>
-                <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">2. Disclaimer</h5>
-                <p style="font-size: 15px">All of the personal information submitted in this website are well encrypted and proper security measures have been put in action in order maintain users privacy as isolated as possible. However, this website cannot grand 100% security for its users as it's not an enterprise project. Proper counter-measures have been put in effect to create a safe sandbox for users. Security updates will be released every month to update to latest technologies and add features to the platform.</p>
-                <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">3. Limitations</h5>
-                <p style="font-size: 15px">Messenger or its suppliers will not be hold accountable for any damages that will arise with the use or inability to use the materials on Messenger's Website, even if Messenger or an authorize representative of this Website has been notified, orally or written, of the possibility of such damage. Some jurisdiction does not allow limitations on implied warranties or limitations of liability for incidental damages, these limitations may not apply to you.</p>
-                <h5 style="font-size: 20px; padding: 5px 0px 5px 10px">4. Revisions and Errata</h5>
-                <p style="font-size: 15px">The materials appearing on Messengers Website may include technical, typographical, or photographic errors. Messenger will not promise that any of the materials in this Website are accurate, complete, or current. Messenger may change the materials contained on its Website at any time without notice. Messenger does not make any commitment to update the materials.</p>
-                <hr style="margin: 5px 0px 5px 0px" />
-            </div>
-        </div>
-    </div>
-
     <div id="versionInfo" class="w3-modal">
         <div class="w3-modal-content">
             <div class="w3-container">
                 <span onclick="document.getElementById('versionInfo').style.display='none'" class="w3-button w3-display-topright">&times;</span>
             </div>
             <div class="w3-container" style="padding: 30px">
-                <h2 style="font-size: 25px; padding: 10px; font-weight: bold">What's New & What's about to come...</h2>
+                <h2 style="font-size: 25px; padding: 10px; font-weight: bold">What's New In 1.2.7</h2>
                 <hr style="margin: 5px 0px 5px 0px" />
-                This project was intended to be as compact as possible as part of our journey to discover new technologies and technics. However, for the sake of the platform itself, we are adding new features once in a while.<br /><br />What's new with 1.2.7?
+                On version 1.2.7, we focused on adding new features to the main UI and fixing security issues. Here are a few features added in this version:
                 <ul>
-                    <li>Secure entry point with email confirmation service</li>
-                    <li>With 'Activity Section', you can monitor and report any suspicious account activities</li>
+                    <li>Full Persian language support</li>
+                    <li>Advanced contacts search</li>
+                    <li>Major bug fixes</li>
+                    <li>Enhanced exception handling system</li>
                 </ul>
-                What's about to come?
-                <ul>
-                    <li>Upgraded exception handling system</li>
-                    <li>Major Security updates</li>
-                    <li>Recommendation system</li>
+                What's about to come in 1.2.9?
+                <ul>                    
+                    <li>Contacts recommendation system</li>
+                    <li>Private/Public accounts</li>
+                    <li>Channels & Groups</li>
+                    <li>User settings and environmental changes</li>
+                    <li>Responsive layout</li>
                     <li>Optimized functionalities</li>
-                    <li>Minor fixes</li>
+                    <li>Minor fixes</li>                    
                 </ul>
                 <hr style="margin: 5px 0px 5px 0px" />
             </div>

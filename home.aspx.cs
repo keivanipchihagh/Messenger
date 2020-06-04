@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 
 namespace Messenger
 {
     public partial class Home : System.Web.UI.Page
     {
-        public const string connectionString = responder.connectionString;
-
+        private const string connectionString = responder.connectionString;
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
 
@@ -20,6 +20,11 @@ namespace Messenger
             Response.CacheControl = "no-cache";
             Response.AddHeader("pragma", "no-cache");
             Response.Expires = -1;
+
+            // Resubmission Page
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetExpires(DateTime.Now.AddSeconds(-1));
+            Response.Cache.SetNoStore();
 
             sqlConnection = new SqlConnection(connectionString);
 
@@ -34,12 +39,12 @@ namespace Messenger
 
         protected bool loadSelf()
         {
-            if (Request.Form["email"] != null && Request.Form["pass"] != null /*true*/)
+            if (Request.Form["email"] != null && Request.Form["pass"] != null)
             {
                 /* Get Activation Statue Of User */
                 sqlCommand = new SqlCommand("SELECT * FROM Members WHERE Members_Email = @email AND Members_Password = @password", sqlConnection);    // Initialize command
-                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.Form["email"] /*"ipchi1380@gmail.com"*/));  // Add parameter
-                sqlCommand.Parameters.Add(new SqlParameter("@password", getMD5Hash(Request.Form["pass"]) /*getMD5Hash("25251380")*/));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@email", Request.Form["email"]));  // Add parameter
+                sqlCommand.Parameters.Add(new SqlParameter("@password", getMD5Hash(Request.Form["pass"])));  // Add parameter
                 sqlConnection.Open();   // Open connection
 
                 SqlDataReader dataReader = sqlCommand.ExecuteReader();
@@ -64,18 +69,49 @@ namespace Messenger
 
         protected void loadContacts()
         {
-            /* Get Activation Statue Of User */
-            sqlConnection = new SqlConnection(connectionString);
-            sqlCommand = new SqlCommand("SELECT * FROM Friendships INNER JOIN Members ON Friendships.Friendship_FriendID = Members.Members_ID WHERE Friendships.Friendship_ID = @ID", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@ID", user_ID.Value));  // Add parameter
-            sqlConnection.Open();   // Open connection
+            try
+            {
+                /* Get User Account Details */
+                sqlConnection = new SqlConnection(connectionString);
+                sqlCommand = new SqlCommand("SELECT * FROM Friendships INNER JOIN Members ON Friendships.Friendship_FriendID = Members.Members_ID WHERE Friendships.Friendship_ID = @ID", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@ID", user_ID.Value));  // Add parameter
+                sqlConnection.Open();   // Open connection            
 
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
-            contacts.InnerHtml = "<div class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\"><input id=\"contactsSearch\" type=\"text\" style=\"height: 90%; width: 88%\" maxlength=\"50\" placeholder=\"Search Contacts\" oninput=\"filterContacts()\" /><i class=\"fa fa-refresh\" aria-hidden=\"true\" title=\"Refresh List\" style=\"padding-left: 5%\" onclick=\"loadContacts()\"></i></div>";
-            while (dataReader.Read())
-                contacts.InnerHtml += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>@" + dataReader["Members_UserName"] + " - Last Seen: " + dataReader["Members_LastActivity"] + " </a>";
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                string contents = "<div class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content\"><input id=\"contactsSearch\" type=\"text\" style=\"height: 90%; width: 88%\" maxlength=\"50\" placeholder=\"Search Contacts\" oninput=\"filterContacts()\" /><i class=\"fa fa-refresh\" aria-hidden=\"true\" title=\"Refresh List\" style=\"padding-left: 5%\"></i></div>";
+                while (dataReader.Read())
+                {
+                    // Get Time Difference
+                    string date = dataReader["Members_LastActivity"].ToString().Split('-')[0];
+                    string time = dataReader["Members_LastActivity"].ToString().Split('-')[1];
+                    DateTime lastActivity = new DateTime(int.Parse(date.Split(':')[0]), int.Parse(date.Split(':')[1]), int.Parse(date.Split(':')[2]), int.Parse(time.Split(':')[0]), int.Parse(time.Split(':')[1]), int.Parse(time.Split(':')[2]));
+                    DateTime nowSpan = DateTime.Now;
+                    TimeSpan differece = nowSpan - lastActivity;
 
-            sqlConnection.Close();
+                    string lastseen = "";
+                    if (differece.Seconds < 5 && differece.Minutes == 0 && differece.Hours == 0 && differece.Days == 0)
+                        lastseen = "<span style=\"color: lawngreen; font-weight: bold\">Online</span>";
+                    else if (differece.Minutes < 5 && differece.Hours == 0 && differece.Days == 0)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">Recently</span>";
+                    else if (differece.Hours <= 1 && differece.Days == 0)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Minutes.ToString() + " Minutes ago</span>";
+                    else if (differece.Days < 1)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Hours.ToString() + " hours ago</span>";
+                    else if (differece.Days < 7)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">" + differece.Days + " days ago</span>";
+                    else if (differece.Days <= 14)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">A weak ago</span>";
+                    else if (differece.Days <= 30)
+                        lastseen = "<span style=\"color: gray; font-weight: bold\">A month ago</span>";
+                    else
+                        lastseen = "Long time ago";
+
+                    contents += "<a id=\"" + dataReader["Members_ID"] + "\" class=\"w3-bar-item w3-button menuItem\" style=\"min-width: max-content; font-size: 12px\" title=\"Click to open chat\" onclick=\"getChat(this)\"><i class=\"fa fa-user\" style=\"padding-right: 10px\"></i>@" + dataReader["Members_UserName"] + " - " + lastseen + "</a>";
+                }
+
+                contacts.InnerHtml = contents;
+            }
+            catch (Exception ex) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not load your contacts list. Please re-login or refresh the page</div>"; }
         }
 
         /***
@@ -101,35 +137,38 @@ namespace Messenger
         */
         protected void addFriends(string MemberID)
         {
-            // Get All IDs
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_ID != @ID ORDER BY Members_ID ASC", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@ID", MemberID));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
-            List<string> IDs = new List<string>();
-            while (dataReader.Read())
-                IDs.Add(dataReader["Members_ID"].ToString());
-
-            // Remove all friends
-            sqlConnection.Close();
-            sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
-            sqlCommand = new SqlCommand("DELETE FROM Friendships WHERE Friendship_ID = @ID", sqlConnection);    // Initialize command
-            sqlCommand.Parameters.Add(new SqlParameter("@ID", MemberID));  // Add parameter
-            sqlConnection.Open();   // Open Connection
-            sqlCommand.ExecuteNonQuery();            
-
-            foreach (string ID in IDs)
+            try
             {
-                sqlConnection.Close();  // Close Connection
-                sqlCommand = new SqlCommand("INSERT INTO Friendships (Friendship_ID, Friendship_FriendID) VALUES (@ID, @FriendID)", sqlConnection);    // Initialize command
+                // Get All IDs
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("SELECT Members_ID FROM Members WHERE Members_ID != @ID ORDER BY Members_ID ASC", sqlConnection);    // Initialize command
                 sqlCommand.Parameters.Add(new SqlParameter("@ID", MemberID));  // Add parameter
-                sqlCommand.Parameters.Add(new SqlParameter("@FriendID", ID));  // Add parameter
                 sqlConnection.Open();   // Open Connection
-                sqlCommand.ExecuteNonQuery();   // Execute
-                sqlConnection.Close();  // Close Connection
-            }
+
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();  // Execute
+                List<string> IDs = new List<string>();
+                while (dataReader.Read())
+                    IDs.Add(dataReader["Members_ID"].ToString());
+
+                // Remove all friends
+                sqlConnection.Close();
+                sqlConnection = new SqlConnection(connectionString);    // Initialize Connection
+                sqlCommand = new SqlCommand("DELETE FROM Friendships WHERE Friendship_ID = @ID", sqlConnection);    // Initialize command
+                sqlCommand.Parameters.Add(new SqlParameter("@ID", MemberID));  // Add parameter
+                sqlConnection.Open();   // Open Connection
+                sqlCommand.ExecuteNonQuery();
+
+                foreach (string ID in IDs)
+                {
+                    sqlConnection.Close();  // Close Connection
+                    sqlCommand = new SqlCommand("INSERT INTO Friendships (Friendship_ID, Friendship_FriendID) VALUES (@ID, @FriendID)", sqlConnection);    // Initialize command
+                    sqlCommand.Parameters.Add(new SqlParameter("@ID", MemberID));  // Add parameter
+                    sqlCommand.Parameters.Add(new SqlParameter("@FriendID", ID));  // Add parameter
+                    sqlConnection.Open();   // Open Connection
+                    sqlCommand.ExecuteNonQuery();   // Execute
+                    sqlConnection.Close();  // Close Connection
+                }
+            } catch (Exception ex) { alertBox.InnerHtml = "<div class=\"warning\"><i class=\"'fa fa-exclamation-triangle'\" style=\"padding: 5px\" aria-hidden=\"true\"></i>Oops! Something weird went wrong! Could not update your contacts list. Please re-login</div>"; }
         }
     }
 }
