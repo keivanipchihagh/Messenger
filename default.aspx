@@ -21,16 +21,9 @@ Author URL: http://keivanipchihagh.ir/
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
-
     <script>
-        addEventListener("load", function () {
-            setTimeout(hideURLbar, 0);
-        }, false);
-
-        function hideURLbar() {
-            window.scrollTo(0, 1);
-        }
-
+        addEventListener("load", function () { setTimeout(hideURLbar, 0); }, false);
+        function hideURLbar() { window.scrollTo(0, 1); }
     </script>
 </head>
 
@@ -47,7 +40,7 @@ Author URL: http://keivanipchihagh.ir/
                     <input type="radio" name="sections" id="option1" checked>
                     <label for="option1" class="icon-left-w3pvt" onclick="setArticle(1)"><span class="fa fa-user-circle" aria-hidden="true"></span>Login</label>
                     <article id="article1">
-                        <form id="form" name="form" action="home.aspx" method="post">
+                        <form id="form" name="form" action="Home.aspx" method="post">
                             <input id="identifier" name="identifier" type="hidden" value="login" />
                             <h3 class="legend" style="font-weight: bold">~ Login ~</h3>
                             <div id="alertBox"></div>
@@ -62,7 +55,8 @@ Author URL: http://keivanipchihagh.ir/
                             </div>
                             <div style="padding: 5px">
                                 <div style="float: right">
-                                    <label for="rememberMe" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%"><input id="rememberMe" name="rememberMe" type="checkbox" style="margin-right: 3px" />Remember Me</label>
+                                    <label for="rememberMe" style="cursor: pointer; padding: 0px; border: none; display: inline-block; font-size: initial; width: 100%">
+                                        <input id="rememberMe" name="rememberMe" type="checkbox" style="margin-right: 3px" />Remember Me</label>
                                 </div>
                             </div>
                             <button id="loginBtn" type="submit" class="btn submit" onclick="return login()">Login</button>

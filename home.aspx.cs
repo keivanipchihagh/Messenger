@@ -27,16 +27,18 @@ namespace Messenger
             Response.Cache.SetNoStore();
 
             sqlConnection = new SqlConnection(connectionString);
+
             try
             {
-                if (loadSelf())
+                if (loadSelf() && !IsPostBack)  // First Render
                 {
                     addFriends(user_ID.Value);
                     loadContacts();
                 }
                 else
-                    Response.Redirect("http://messenger.keivanipchihagh.ir/401.aspx");
-            } catch (Exception) { Response.Redirect("http://messenger.keivanipchihagh.ir/401.aspx"); }
+                    Response.Redirect("http://messenger.keivanipchihagh.ir/401.aspx", false);
+            }
+            catch (Exception ex) { Response.Write(ex.Message); Response.Redirect("http://messenger.keivanipchihagh.ir/400.aspx", false); }
         }
 
         protected bool loadSelf()

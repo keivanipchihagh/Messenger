@@ -213,7 +213,7 @@ function login() {
             if (request.readyState === 4 && request.status === 200) {
                 if (request.responseText === 'Code 1') {
                     triggerAlert('success', 'EP Signature confirmed, redirecting you to your account...', 4000);
-                    document.getElementById('loginBtn').value = "Logged In";
+                    document.getElementById('loginBtn').value = "Logged In";                    
                     document.getElementById('form').submit();
                 } else if (request.responseText === 'Code 2') {
                     triggerAlert('warning', 'Account has not been activated yet. Activate in order to proceed', 10000);

@@ -12,7 +12,7 @@ namespace Messenger
     public partial class responder : System.Web.UI.Page
     {
         //public const string connectionString = "Data Source = .; Initial Catalog = Messenger; Integrated Security = True";
-        public const string connectionString = "xxxxxxxxxxxxxxxxxx";
+        public const string connectionString = "Data Source=www.keivanipchihagh.ir;Initial Catalog = keivani3_Messenger; Persist Security Info=True;User ID = keivani3_keivan; Password=Keivan25251380";
 
         private SqlConnection sqlConnection;
         private SqlCommand sqlCommand;
@@ -27,10 +27,10 @@ namespace Messenger
             Response.AddHeader("pragma", "no-cache");
             Response.Expires = -1;
 
-            try
-            {
-                sqlConnection = new SqlConnection(connectionString);    // Initialize connection
+            sqlConnection = new SqlConnection(connectionString);    // Initialize connection
 
+            try
+            {                
                 switch (Request.QueryString["Action"])
                 {
                     case "signup": signup(); break; // Sign Up
@@ -54,7 +54,7 @@ namespace Messenger
                     case "deleteMessage": deleteMessage(); break;
                 }
             }
-            catch (Exception) { Response.Redirect("http://messenger.keivanipchihagh.ir/400.aspx"); }    // Show Error Message
+            catch (Exception) { Response.Redirect("http://messenger.keivanipchihagh.ir/400.aspx", false); }    // Show Error Message
             finally { sqlConnection.Close(); /* Close Connection */ }
         }
 
@@ -197,8 +197,8 @@ namespace Messenger
                     if (dataReader.Read())  // Records Found
                         if (dataReader["Members_IsActivated"].ToString() == "true")     // User Exist & Is Activated
                         {
-                            Response.Write("Code 1");   // Code 1: 'User exists'
                             if (recordExists) writeLog(ID, "Login", "Granted");     // User Exists But Not Activated
+                            Response.Write("Code 1");   // Code 1: 'User exists'                            
                         }
                         else
                         {
